@@ -1,0 +1,109 @@
+{
+  "name": "osiris",
+  "version": "1.2.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron . --max-old-space-size=4096",
+    "start:large": "electron . --max-old-space-size=8192 --expose-gc",
+    "dist": "electron-builder",
+    "dist:mac": "electron-builder --mac",
+    "dist:win": "electron-builder --win",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "electron": "^38.3.0",
+    "electron-builder": "^26.0.12",
+    "to-ico": "^1.0.1"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.8",
+    "exceljs": "^4.4.0"
+  },
+  "build": {
+    "appId": "com.castelmotors.osiris",
+    "productName": "Osiris",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build-resources"
+    },
+    "files": [
+      "**/*",
+      "!**/*.md",
+      "!.gitignore",
+      "!.vscode",
+      "!dist",
+      "assets/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "assets",
+        "to": "assets",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "icon": "build-resources/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "publish": null,
+      "verifyUpdateCodeSignature": false,
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "Osiris",
+      "deleteAppDataOnUninstall": true,
+      "installerIcon": "build-resources/icon.ico",
+      "uninstallerIcon": "build-resources/icon.ico",
+      "include": "installer.nsh"
+    },
+    "portable": {
+      "artifactName": "Osiris-Portable.exe"
+    },
+    "mac": {
+      "icon": "build-resources/icon.icns",
+      "category": "public.app-category.business",
+      "target": [
+        {
+          "target": "pkg",
+          "arch": [
+            "arm64"
+          ]
+        }
+      ],
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build-resources/entitlements.mac.plist",
+      "entitlementsInherit": "build-resources/entitlements.mac.plist"
+    },
+    "pkg": {
+      "installLocation": "/Applications",
+      "allowAnywhere": true,
+      "allowCurrentUserHome": false,
+      "allowRootDirectory": false,
+      "overwriteAction": "upgrade"
+    }
+  }
+}

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:;"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Osiris - Comparación Interna</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <style>
+      :root {
+        --bs-primary: #6c757d;
+        --bs-primary-rgb: 108, 117, 125;
+      }
+      .preview-table {
+        font-size: 0.85rem;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      .column-badge {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+      }
+      .step-indicator {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2rem;
+      }
+      .step {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e0e0e0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin: 0 10px;
+        color: #666;
+      }
+      .step.active {
+        background: var(--bs-primary);
+        color: white;
+      }
+      .step.completed {
+        background: #28a745;
+        color: white;
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <div class="container my-5">
+      <!-- Encabezado -->
+      <div class="text-center mb-4">
+        <h2 class="text-dark">Comparación de Columnas Internas</h2>
+        <p class="text-muted">
+          Configura la comparación entre dos columnas de una misma hoja
+        </p>
+      </div>
+
+      <!-- Indicador de pasos -->
+      <div class="step-indicator">
+        <div class="step active" id="step1">1</div>
+        <div class="step" id="step2">2</div>
+        <div class="step" id="step3">3</div>
+      </div>
+
+      <!-- Card principal -->
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <!-- Sección 1: Seleccionar archivo -->
+          <div id="section1" class="mb-4">
+            <h5 class="mb-3">📁 Paso 1: Seleccionar Archivo</h5>
+            <div class="row">
+              <div class="col-md-8">
+                <button class="btn btn-primary" id="selectFileBtn">
+                  Seleccionar Archivo Excel
+                </button>
+                <span class="ms-3 text-muted" id="fileNameDisplay"
+                  >Ningún archivo seleccionado</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Sección 2: Seleccionar hoja y columnas -->
+          <div id="section2" class="mb-4" style="display: none">
+            <h5 class="mb-3">📊 Paso 2: Configurar Hoja y Columnas</h5>
+
+            <!-- Selección de hoja -->
+            <div class="mb-3">
+              <label for="sheetSelect" class="form-label"
+                >Seleccionar Hoja:</label
+              >
+              <select class="form-select" id="sheetSelect">
+                <option value="">-- Selecciona una hoja --</option>
+              </select>
+            </div>
+
+            <!-- Fila de encabezados -->
+            <div class="mb-3">
+              <label for="headerRowInput" class="form-label"
+                >Fila de Encabezados:</label
+              >
+              <input
+                type="number"
+                class="form-control"
+                id="headerRowInput"
+                min="1"
+                value="1"
+                placeholder="Número de fila donde están los encabezados"
+              />
+            </div>
+
+            <!-- Columnas a comparar -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="column1Input" class="form-label"
+                  >Columna Origen (ej: A):</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="column1Input"
+                  placeholder="A"
+                  maxlength="3"
+                />
+                <small class="text-muted">Ejemplo: A, B, AA, AB</small>
+              </div>
+              <div class="col-md-6">
+                <label for="column2Input" class="form-label"
+                  >Columna a Comparar (ej: Z):</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="column2Input"
+                  placeholder="Z"
+                  maxlength="3"
+                />
+                <small class="text-muted">Ejemplo: Z, AA, AB</small>
+              </div>
+            </div>
+
+            <!-- Nombre de columna de resultados -->
+            <div class="mb-3">
+              <label for="resultColumnInput" class="form-label"
+                >Nombre de Columna de Resultados:</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="resultColumnInput"
+                value="Concordancia"
+                placeholder="Concordancia"
+              />
+            </div>
+
+            <!-- Botón para cargar preview -->
+            <button class="btn btn-secondary" id="loadPreviewBtn">
+              Cargar Vista Previa
+            </button>
+          </div>
+
+          <!-- Sección 3: Vista previa -->
+          <div id="section3" class="mb-4" style="display: none">
+            <h5 class="mb-3">👁️ Paso 3: Vista Previa</h5>
+
+            <div class="alert alert-info">
+              <strong>Columnas seleccionadas:</strong><br />
+              Columna 1:
+              <span class="badge bg-primary column-badge" id="col1Badge">-</span
+              ><br />
+              Columna 2:
+              <span class="badge bg-success column-badge" id="col2Badge">-</span
+              ><br />
+              Resultado:
+              <span class="badge bg-warning column-badge" id="resultBadge"
+                >-</span
+              >
+            </div>
+
+            <div class="table-responsive preview-table mb-3">
+              <table class="table table-sm table-bordered" id="previewTable">
+                <thead class="table-light">
+                  <tr id="previewHeader"></tr>
+                </thead>
+                <tbody id="previewBody"></tbody>
+              </table>
+            </div>
+
+            <div class="d-flex justify-content-between">
+              <button class="btn btn-secondary" id="backBtn">
+                ← Volver a Configuración
+              </button>
+              <div>
+                <button
+                  class="btn btn-success"
+                  id="processBtn"
+                  disabled
+                  title="Primero carga la vista previa"
+                >
+                  Procesar Comparación
+                </button>
+                <small
+                  class="d-block text-muted mt-1 text-end"
+                  id="processHelp"
+                >
+                  ⚠️ Carga la vista previa primero
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botón volver al inicio -->
+      <div class="text-center mt-4">
+        <button class="btn btn-outline-secondary" id="backToMenuBtn">
+          ← Volver al Menú Principal
+        </button>
+      </div>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+    <script src="../scripts/compare-internal.js"></script>
+  </body>
+</html>

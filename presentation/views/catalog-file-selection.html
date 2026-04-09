@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:;"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Osiris - Catalogar Datos</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <style>
+      :root {
+        --bs-primary: #6c757d;
+        --bs-primary-rgb: 108, 117, 125;
+      }
+      .file-valid {
+        border-left: 4px solid #28a745;
+      }
+      .file-invalid {
+        border-left: 4px solid #dc3545;
+      }
+      .sheet-checkbox:checked {
+        background-color: #28a745;
+        border-color: #28a745;
+      }
+      .help-section {
+        background-color: #e7f3ff;
+        border-left: 4px solid #0d6efd;
+      }
+      .example-data {
+        font-family: "Courier New", monospace;
+        font-size: 0.9em;
+        background-color: #f8f9fa;
+        padding: 8px;
+        border-radius: 4px;
+        white-space: pre-wrap;
+      }
+      .step-indicator {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2rem;
+      }
+      .step {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e0e0e0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin: 0 10px;
+        color: #666;
+      }
+      .step.active {
+        background: var(--bs-primary);
+        color: white;
+      }
+      .step.completed {
+        background: #28a745;
+        color: white;
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <div class="container my-5">
+      <!-- Encabezado -->
+      <div class="text-center mb-4">
+        <h2 class="text-dark">📋 Catalogar Datos</h2>
+        <p class="text-muted">
+          Selecciona archivos Excel con catálogos de vehículos para procesar
+        </p>
+      </div>
+
+      <!-- Indicador de pasos -->
+      <div class="step-indicator">
+        <div class="step active" id="step1">1</div>
+        <div class="step" id="step2">2</div>
+      </div>
+
+      <!-- Card principal -->
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+
+          <!-- Sección de Ayuda (colapsable) -->
+          <div class="accordion mb-4" id="helpAccordion">
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button
+                  class="accordion-button collapsed"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#helpContent"
+                >
+                  ℹ️ Ayuda - Formato de Datos Esperado
+                </button>
+              </h2>
+              <div
+                id="helpContent"
+                class="accordion-collapse collapse"
+                data-bs-parent="#helpAccordion"
+              >
+                <div class="accordion-body help-section">
+                      <h6>📋 Formato de Datos de Vehículos:</h6>
+                      <p class="mb-2">
+                        Para que un archivo sea considerado válido para
+                        catalogación, debe contener una columna con datos de
+                        vehículos en el siguiente formato:
+                      </p>
+                      <p class="mb-2">
+                        <code
+                          >MARCA MODELO (AÑO_INICIAL-AÑO_FINAL)
+                          [ESPECIFICACIONES]</code
+                        >
+                      </p>
+                      <p class="text-muted small">
+                        Las especificaciones adicionales (cilindrada, tracción,
+                        etc.) son opcionales y se agregarán automáticamente al
+                        nombre del vehículo.
+                      </p>
+
+                      <h6 class="mt-3">✅ Ejemplos de Formatos Válidos:</h6>
+                      <div class="example-data">
+                        MAZDA 121 (1996-2001); FORD FIESTA (1996-2001) NISSAN
+                        FRONTIER D22 3.0 (1998-2004) FORD-ECOSPORT (2003,2012)
+                        4X2 ← Con tracción después TOYOTA HILUX (2016-)
+                        CHEVROLET-N300 (2012,2017) 1.2 ← Con cilindrada después
+                        RENAULT-9(1981,1986 ← Sin cierre de paréntesis
+                        CHEVROLET-AVEO NG(23) ← Con años de 2 dígitos
+                        HYUNDAI-ACCENT (2010,2015) 1.4 SEDAN ← Con múltiples
+                        especificaciones
+                      </div>
+
+                      <h6 class="mt-3">❌ Ejemplos de Formatos NO Válidos:</h6>
+                      <div class="example-data text-danger">
+                        0 ← Valor numérico sin formato CHEVROLET-LUV 1600 4X2
+                        (-1990) ← Falta año inicial Sin formato definido ← Texto
+                        sin estructura MODELO SIN MARCA (2010-2020) ← Debe tener
+                        marca
+                      </div>
+
+                      <h6 class="mt-3">📝 Notas Importantes:</h6>
+                      <ul>
+                        <li>
+                          El programa busca automáticamente columnas llamadas
+                          <strong>"VEHICULO MASTER"</strong> o
+                          <strong>"CAR CATALOGUE"</strong>
+                        </li>
+                        <li>
+                          Si no se encuentra ninguna de estas columnas, puedes
+                          seleccionar manualmente la columna correcta
+                        </li>
+                        <li>
+                          La columna seleccionada será validada analizando si
+                          sus datos siguen el formato esperado (mínimo 50%
+                          válidos)
+                        </li>
+                        <li>
+                          Múltiples vehículos en una misma celda se separan con
+                          punto y coma (;)
+                        </li>
+                        <li>
+                          Soporta años de 2 dígitos (95 = 1995, 23 = 2023)
+                        </li>
+                        <li>
+                          Si no hay año final, se usa el año actual por defecto
+                          (ej: 2016-)
+                        </li>
+                        <li>
+                          Información adicional después del paréntesis
+                          (cilindrada, tracción, etc.) se incluye
+                          automáticamente en el nombre del vehículo
+                        </li>
+                      </ul>
+
+                      <h6 class="mt-3">🔍 Proceso de Validación:</h6>
+                      <ol>
+                        <li>
+                          El programa detecta automáticamente la columna de
+                          vehículos (si existe)
+                        </li>
+                        <li>
+                          Analiza una muestra de filas para verificar que los
+                          datos sean parseables
+                        </li>
+                        <li>
+                          Si los datos siguen el formato correcto, el archivo es
+                          válido
+                        </li>
+                        <li>
+                          Si no se detecta la columna automáticamente, podrás
+                          seleccionarla manualmente
+                        </li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Selección de archivos -->
+          <div class="mb-4">
+            <h5 class="mb-3">📁 Paso 1: Seleccionar Archivos Excel</h5>
+            <div class="d-flex gap-2">
+              <button
+                type="button"
+                class="btn btn-primary flex-grow-1"
+                id="selectFilesBtn"
+              >
+                Seleccionar Archivos
+              </button>
+            </div>
+          </div>
+
+          <!-- Lista de archivos validados -->
+          <div id="filesSection" style="display: none">
+            <h5 class="mb-3">🔧 Paso 2: Configurar Archivos para Procesar</h5>
+            <p class="text-muted small">
+              Para cada archivo, selecciona una hoja y la columna que
+              contiene los datos de vehículos (VEHICULO MASTER)
+            </p>
+            <div id="filesList" class="mb-3"></div>
+
+            <!-- Botón para procesar -->
+            <div class="d-flex justify-content-end">
+              <button
+                type="button"
+                class="btn btn-success"
+                id="processBtn"
+                disabled
+              >
+                ✅ Procesar Catálogos Configurados
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botón volver al inicio -->
+      <div class="text-center mt-4">
+        <button class="btn btn-outline-secondary" id="backBtn">
+          ← Volver al Menú Principal
+        </button>
+      </div>
+    </div>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+
+    <script>
+      const { ipcRenderer } = require("electron");
+
+      let fileValidations = [];
+      // Map<filePath, { sheetName, columnIndex, isValid }>
+      let fileConfigs = new Map();
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const selectFilesBtn = document.getElementById("selectFilesBtn");
+        const processBtn = document.getElementById("processBtn");
+        const backBtn = document.getElementById("backBtn");
+        const filesSection = document.getElementById("filesSection");
+        const filesList = document.getElementById("filesList");
+
+        backBtn.addEventListener("click", () => {
+          ipcRenderer.send("navigate-to", "mode-selection");
+        });
+
+        selectFilesBtn.addEventListener("click", async () => {
+          const result = await ipcRenderer.invoke("select-catalog-files");
+          if (result.success && result.filePaths.length > 0) {
+            await validateAndDisplayFiles(result.filePaths);
+          }
+        });
+
+        async function validateAndDisplayFiles(filePaths) {
+          selectFilesBtn.disabled = true;
+          selectFilesBtn.innerHTML =
+            '<span class="spinner-border spinner-border-sm me-2"></span>Validando archivos...';
+
+          try {
+            const validationResult = await ipcRenderer.invoke(
+              "validate-catalog-files",
+              filePaths
+            );
+
+            if (validationResult.success) {
+              fileValidations = validationResult.validations;
+              fileConfigs.clear();
+
+              // Pre-configurar archivos con hoja detectada y columna detectada
+              fileValidations.forEach((file) => {
+                if (file.success && file.sheets && file.sheets.length > 0) {
+                  const firstSheet = file.sheets[0];
+                  if (firstSheet.hasData && firstSheet.detectedVehicleColumn) {
+                    // Si detectó columna automáticamente, pre-configurar
+                    fileConfigs.set(file.filePath, {
+                      sheetName: firstSheet.name,
+                      columnIndex: firstSheet.detectedVehicleColumn,
+                      isValid: null, // null = pendiente de validación
+                      isValidating: false,
+                    });
+                  } else {
+                    // Si no detectó, dejar sin configurar
+                    fileConfigs.set(file.filePath, {
+                      sheetName: firstSheet.name,
+                      columnIndex: null,
+                      isValid: false,
+                      isValidating: false,
+                    });
+                  }
+                }
+              });
+
+              displayFiles();
+              filesSection.style.display = "block";
+
+              // Validar columnas pre-configuradas automáticamente
+              await validateAllDetectedColumns();
+              updateProcessButton();
+            } else {
+              alert("Error al validar archivos: " + validationResult.error);
+            }
+          } catch (error) {
+            alert("Error: " + error.message);
+          }
+
+          selectFilesBtn.disabled = false;
+          selectFilesBtn.innerHTML = "📁 Seleccionar Archivos";
+        }
+
+        async function validateAllDetectedColumns() {
+          for (const [filePath, config] of fileConfigs.entries()) {
+            if (config.columnIndex && config.isValid === null) {
+              await validateColumn(
+                filePath,
+                config.sheetName,
+                config.columnIndex
+              );
+            }
+          }
+        }
+
+        function displayFiles() {
+          filesList.innerHTML = "";
+
+          fileValidations.forEach((file) => {
+            const config = fileConfigs.get(file.filePath);
+            const fileCard = document.createElement("div");
+
+            // Color del borde según validación
+            let borderClass = "border-secondary";
+            if (config && config.isValid === true) {
+              borderClass = "file-valid";
+            } else if (config && config.isValid === false) {
+              borderClass = "file-invalid";
+            }
+
+            fileCard.className = `card mb-3 ${borderClass}`;
+            fileCard.id = `file-card-${file.filePath.replace(
+              /[^a-zA-Z0-9]/g,
+              "_"
+            )}`;
+
+            let contentHTML = "";
+            if (file.success && file.sheets) {
+              const fileId = file.filePath.replace(/[^a-zA-Z0-9]/g, "_");
+
+              contentHTML = `
+                <div class="card-body">
+                  <h6 class="card-title mb-3">📄 ${file.fileName}</h6>
+                  
+                  <!-- Selección de Hoja -->
+                  <div class="mb-3">
+                    <label class="form-label fw-bold">Seleccionar Hoja:</label>
+                    <select class="form-select sheet-select" data-file-path="${
+                      file.filePath
+                    }">
+                      ${file.sheets
+                        .map(
+                          (sheet) => `
+                        <option value="${sheet.name}" ${
+                            config && config.sheetName === sheet.name
+                              ? "selected"
+                              : ""
+                          }>
+                          ${sheet.name} (${sheet.rowCount} filas)
+                        </option>
+                      `
+                        )
+                        .join("")}
+                    </select>
+                  </div>
+
+                  <!-- Selección de Columna -->
+                  <div class="mb-3">
+                    <label class="form-label fw-bold">Columna VEHICULO MASTER:</label>
+                    <select class="form-select column-select" data-file-path="${
+                      file.filePath
+                    }" id="column-${fileId}">
+                      <option value="">-- Seleccionar columna --</option>
+                      ${getSheetColumns(file, config?.sheetName)
+                        .map(
+                          (col, idx) => `
+                        <option value="${idx + 1}" ${
+                            config && config.columnIndex === idx + 1
+                              ? "selected"
+                              : ""
+                          }>
+                          ${col}
+                        </option>
+                      `
+                        )
+                        .join("")}
+                    </select>
+                  </div>
+
+                  <!-- Estado de Validación -->
+                  <div class="alert mb-0" id="validation-status-${fileId}" role="alert">
+                    ${getValidationStatusHTML(config)}
+                  </div>
+                </div>
+              `;
+            } else {
+              contentHTML = `
+                <div class="card-body">
+                  <h6 class="card-title text-danger">❌ ${file.fileName}</h6>
+                  <p class="text-danger mb-0">Error: ${
+                    file.error || "No se pudo cargar el archivo"
+                  }</p>
+                </div>
+              `;
+            }
+
+            fileCard.innerHTML = contentHTML;
+            filesList.appendChild(fileCard);
+          });
+
+          // Añadir event listeners
+          document.querySelectorAll(".sheet-select").forEach((select) => {
+            select.addEventListener("change", onSheetChange);
+          });
+
+          document.querySelectorAll(".column-select").forEach((select) => {
+            select.addEventListener("change", onColumnChange);
+          });
+        }
+
+        function getSheetColumns(file, sheetName) {
+          if (!sheetName) {
+            return file.sheets[0]?.columns || [];
+          }
+          const sheet = file.sheets.find((s) => s.name === sheetName);
+          return sheet?.columns || [];
+        }
+
+        function getValidationStatusHTML(config) {
+          if (!config) {
+            return '<span class="text-muted">⚠️ Esperando configuración...</span>';
+          }
+
+          if (config.isValidating) {
+            return '<div class="spinner-border spinner-border-sm me-2"></div>Validando columna...';
+          }
+
+          if (config.isValid === null) {
+            return '<span class="text-muted">⏳ Pendiente de validación...</span>';
+          }
+
+          if (config.isValid === true) {
+            return '<span class="text-success">✓ Columna válida - Lista para procesar</span>';
+          }
+
+          if (config.isValid === false && !config.columnIndex) {
+            return '<span class="text-warning">⚠️ Por favor selecciona una columna</span>';
+          }
+
+          return '<span class="text-danger">✗ Columna inválida - Los datos no tienen el formato esperado</span>';
+        }
+
+        async function onSheetChange(e) {
+          const filePath = e.target.dataset.filePath;
+          const sheetName = e.target.value;
+          const config = fileConfigs.get(filePath);
+
+          if (config) {
+            config.sheetName = sheetName;
+            config.columnIndex = null;
+            config.isValid = false;
+          }
+
+          // Actualizar opciones de columnas
+          displayFiles();
+          updateProcessButton();
+        }
+
+        async function onColumnChange(e) {
+          const filePath = e.target.dataset.filePath;
+          const columnIndex = parseInt(e.target.value);
+          const config = fileConfigs.get(filePath);
+
+          if (!config || !columnIndex) {
+            if (config) {
+              config.columnIndex = null;
+              config.isValid = false;
+            }
+            updateValidationStatus(filePath);
+            updateProcessButton();
+            return;
+          }
+
+          config.columnIndex = columnIndex;
+          config.isValid = null;
+          config.isValidating = true;
+
+          updateValidationStatus(filePath);
+
+          // Validar la columna seleccionada
+          await validateColumn(filePath, config.sheetName, columnIndex);
+          updateProcessButton();
+        }
+
+        async function validateColumn(filePath, sheetName, columnIndex) {
+          const config = fileConfigs.get(filePath);
+          if (!config) return;
+
+          config.isValidating = true;
+          updateValidationStatus(filePath);
+
+          try {
+            const result = await ipcRenderer.invoke(
+              "validate-catalog-column",
+              filePath,
+              sheetName,
+              columnIndex
+            );
+
+            if (result.success) {
+              config.isValid = result.isValid;
+              config.validationMessage = result.message;
+            } else {
+              config.isValid = false;
+              config.validationMessage = result.error || "Error al validar";
+            }
+          } catch (error) {
+            config.isValid = false;
+            config.validationMessage = "Error: " + error.message;
+          }
+
+          config.isValidating = false;
+          updateValidationStatus(filePath);
+        }
+
+        function updateValidationStatus(filePath) {
+          const config = fileConfigs.get(filePath);
+          const fileId = filePath.replace(/[^a-zA-Z0-9]/g, "_");
+          const statusDiv = document.getElementById(
+            `validation-status-${fileId}`
+          );
+          const fileCard = document.getElementById(`file-card-${fileId}`);
+
+          if (statusDiv) {
+            statusDiv.innerHTML = getValidationStatusHTML(config);
+
+            // Actualizar clase de alerta
+            statusDiv.className = "alert mb-0";
+            if (config && config.isValid === true) {
+              statusDiv.classList.add("alert-success");
+            } else if (
+              config &&
+              config.isValid === false &&
+              config.columnIndex
+            ) {
+              statusDiv.classList.add("alert-danger");
+            } else {
+              statusDiv.classList.add("alert-warning");
+            }
+          }
+
+          // Actualizar borde de la card
+          if (fileCard) {
+            fileCard.className = "card mb-3";
+            if (config && config.isValid === true) {
+              fileCard.classList.add("file-valid");
+            } else if (
+              config &&
+              config.isValid === false &&
+              config.columnIndex
+            ) {
+              fileCard.classList.add("file-invalid");
+            } else {
+              fileCard.classList.add("border-secondary");
+            }
+          }
+        }
+
+        function updateProcessButton() {
+          let validConfigs = 0;
+
+          fileConfigs.forEach((config) => {
+            if (config.isValid === true) {
+              validConfigs++;
+            }
+          });
+
+          if (validConfigs > 0 && validConfigs === fileConfigs.size) {
+            processBtn.disabled = false;
+            processBtn.textContent = `✅ Procesar ${validConfigs} archivo(s) configurado(s)`;
+          } else {
+            processBtn.disabled = true;
+            processBtn.textContent = "✅ Procesar Catálogos Configurados";
+          }
+        }
+
+        // Función para procesar catálogos
+        async function processCatalogs() {
+          // Validar que todos los archivos tengan configuración válida
+          let allValid = true;
+          fileConfigs.forEach((config) => {
+            if (config.isValid !== true) {
+              allValid = false;
+            }
+          });
+
+          if (!allValid) {
+            alert(
+              "Por favor configura y valida todos los archivos antes de procesar."
+            );
+            return;
+          }
+
+          try {
+            processBtn.disabled = true;
+            processBtn.innerHTML =
+              '<span class="spinner-border spinner-border-sm me-2"></span>Procesando catálogos...';
+
+            // Preparar configuraciones para el backend
+            const configs = [];
+            fileConfigs.forEach((config, filePath) => {
+              configs.push({
+                filePath: filePath,
+                sheetName: config.sheetName,
+                columnIndex: config.columnIndex,
+              });
+            });
+
+            const result = await ipcRenderer.invoke(
+              "process-catalog-files",
+              configs
+            );
+
+            if (result.success) {
+              // Guardar stats en sessionStorage para que la siguiente página pueda accederlas
+              sessionStorage.setItem(
+                "catalogStats",
+                JSON.stringify(result.stats)
+              );
+
+              // Navegar a la pantalla de resultados
+              ipcRenderer.send("navigate-to", "catalog-results");
+            } else {
+              alert("Error al procesar archivos:\n\n" + result.error);
+              processBtn.disabled = false;
+              updateProcessButton();
+            }
+          } catch (error) {
+            console.error("Error completo:", error);
+            alert("Error: " + error.message);
+            processBtn.disabled = false;
+            updateProcessButton();
+          }
+        }
+
+        processBtn.addEventListener("click", processCatalogs);
+      });
+    </script>
+  </body>
+</html>
