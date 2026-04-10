@@ -1,7 +1,7 @@
 {
   "name": "recongrid",
   "version": "1.0.0",
-  "description": "",
+  "description": "Desktop app for Excel reconciliation and auditable exports.",
   "main": "index.js",
   "scripts": {
     "start": "electron . --max-old-space-size=4096",
@@ -12,8 +12,14 @@
     "test": "node --test --test-isolation=none",
     "bench:matching": "node benchmarks/compare-excels.benchmark.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "electron",
+    "excel",
+    "reconciliation",
+    "matching",
+    "audit"
+  ],
+  "author": "ReconGrid",
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
@@ -45,7 +51,7 @@
       "!domain/usecases/ProcessCatalogUseCase.js",
       "!domain/entities/Catalog*.js",
       "!infrastructure/parsers/CatalogParser.js",
-      "!infrastructure/config/vehicle*.js",
+      "!infrastructure/config/**",
       "!presentation/assets/icon.png"
     ],
     "win": {
