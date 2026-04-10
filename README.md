@@ -2,7 +2,7 @@
 
 ReconGrid es una aplicacion de escritorio construida con Electron para reconciliar datos tabulares, comparar workbooks de Excel y generar archivos de salida auditables.
 
-![Vista general de ReconGrid](../docs/assets/recongrid-overview.svg)
+![Vista general de ReconGrid](docs/assets/recongrid-overview.svg)
 
 ## Flujos visibles
 - Comparacion entre dos archivos Excel.
@@ -37,7 +37,6 @@ npm install
 npm start
 ```
 
-## Documentacion relacionada
-- [Motor de matching](../docs/matching-engine.md)
-- [Deuda tecnica](../docs/technical-debt.md)
-- [Checklist de release](../docs/release-checklist.md)
+## Documentacion publica del proyecto
+- [Motor de matching](docs/matching-engine.md)
+- [Checklist de release](docs/release-checklist.md)

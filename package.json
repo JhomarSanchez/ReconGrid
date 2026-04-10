@@ -43,6 +43,8 @@
       "!**/*.md",
       "!.gitignore",
       "!.vscode",
+      "!.github",
+      "!docs",
       "!dist",
       "!tests",
       "!benchmarks",
