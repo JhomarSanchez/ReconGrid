@@ -1,59 +1,65 @@
 const CompareExcelsUseCase = require("../../domain/usecases/CompareExcelsUseCase");
 const ExcelRepositoryImpl = require("../../data/repositories/ExcelRepositoryImpl");
+const { formatUserError } = require("../utils/formatUserError");
 
 class ProcessController {
   constructor() {
     this.repository = new ExcelRepositoryImpl();
     this.compareUseCase = new CompareExcelsUseCase(this.repository);
     this.matchResults = null;
-    this.comparisonCompleted = false; // NUEVO: flag para evitar re-procesar
+    this.comparisonCompleted = false;
   }
 
   async compareFiles(sourceFile, targetFile, progressCallback) {
     try {
-      // Si ya se procesó, no hacerlo de nuevo
       if (this.comparisonCompleted && this.matchResults) {
-        console.log("Usando resultados cacheados de comparación anterior");
+        console.log("Usando resultados cacheados de comparacion anterior");
         return {
           success: true,
           totalMatches: this.matchResults.length,
-          exactMatches: this.matchResults.filter((r) => r.isExact()).length,
-          noMatches: this.matchResults.filter((r) => r.matchType === "no_match")
+          exactMatches: this.matchResults.filter((result) => result.isExact())
             .length,
+          noMatches: this.matchResults.filter(
+            (result) => result.matchType === "no_match"
+          ).length,
         };
       }
 
-      console.log("Iniciando nueva comparación...");
+      console.log("Iniciando nueva comparacion...");
       this.matchResults = await this.compareUseCase.execute(
         sourceFile,
         targetFile,
         progressCallback
       );
-
       this.comparisonCompleted = true;
 
       return {
         success: true,
         totalMatches: this.matchResults.length,
-        exactMatches: this.matchResults.filter((r) => r.isExact()).length,
-        noMatches: this.matchResults.filter((r) => r.matchType === "no_match")
+        exactMatches: this.matchResults.filter((result) => result.isExact())
           .length,
+        noMatches: this.matchResults.filter(
+          (result) => result.matchType === "no_match"
+        ).length,
       };
     } catch (error) {
+      this.matchResults = null;
       this.comparisonCompleted = false;
       return {
         success: false,
-        error: error.message,
+        error: formatUserError(
+          error,
+          "No se pudo completar la comparacion entre archivos."
+        ),
       };
     }
   }
 
   async generateResultFile(sourceFile, targetFile, outputPath) {
     try {
-      // Usar los resultados ya procesados
       if (!this.matchResults) {
         throw new Error(
-          "No hay resultados de comparación. Ejecuta compareFiles primero."
+          "No hay resultados de comparacion. Ejecuta compareFiles primero."
         );
       }
 
@@ -74,7 +80,10 @@ class ProcessController {
     } catch (error) {
       return {
         success: false,
-        error: error.message,
+        error: formatUserError(
+          error,
+          "No se pudo generar el archivo de resultados."
+        ),
       };
     }
   }
@@ -83,7 +92,6 @@ class ProcessController {
     return this.matchResults;
   }
 
-  // NUEVO: método para resetear el caché
   reset() {
     this.matchResults = null;
     this.comparisonCompleted = false;

@@ -89,6 +89,23 @@
                 <p class="small text-muted" id="progressText">
                   Procesadas 0 de 0 filas
                 </p>
+                <p class="small text-muted mb-2" id="processingHint">
+                  Los archivos grandes pueden tardar varios minutos. Manten esta ventana abierta durante el proceso.
+                </p>
+                <p class="small text-muted mb-0" id="elapsedTimeText">
+                  Tiempo transcurrido: 0 s
+                </p>
+                <div
+                  class="alert alert-danger mt-4 d-none text-start"
+                  role="alert"
+                  id="errorAlert"
+                ></div>
+                <button
+                  class="btn btn-outline-secondary mt-3 d-none"
+                  id="errorBackBtn"
+                >
+                  Volver al inicio
+                </button>
               </div>
 
               <div class="result-summary" id="resultSummary">
@@ -106,6 +123,9 @@
                     </div>
                   </div>
                   <hr />
+                  <p class="mb-2">
+                    Tiempo total: <strong id="processingTime">No disponible</strong>
+                  </p>
                   <p class="mb-0">
                     Archivo guardado en: <strong id="outputPath"></strong>
                   </p>

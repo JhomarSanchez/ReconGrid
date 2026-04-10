@@ -9,7 +9,8 @@
     "dist": "electron-builder",
     "dist:mac": "electron-builder --mac",
     "dist:win": "electron-builder --win",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test --test-isolation=none",
+    "bench:matching": "node benchmarks/compare-excels.benchmark.js"
   },
   "keywords": [],
   "author": "",
@@ -37,6 +38,8 @@
       "!.gitignore",
       "!.vscode",
       "!dist",
+      "!tests",
+      "!benchmarks",
       "!presentation/views/catalog-*.html",
       "!presentation/controllers/CatalogController.js",
       "!domain/usecases/ProcessCatalogUseCase.js",

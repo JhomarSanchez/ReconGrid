@@ -229,6 +229,7 @@ ipcMain.handle("validate-target-config", async () => {
 
 ipcMain.handle("start-comparison", async () => {
   try {
+    processingStartTime = Date.now();
     const sourceFile = configController.getSourceFile();
     const targetFile = configController.getTargetFile();
 
@@ -253,6 +254,7 @@ ipcMain.handle("start-comparison", async () => {
 
     return result;
   } catch (error) {
+    processingStartTime = null;
     return { success: false, error: error.message };
   }
 });
@@ -272,6 +274,7 @@ ipcMain.handle("generate-result-file", async () => {
     });
 
     if (canceled || !filePath) {
+      processingStartTime = null;
       return { success: false, error: "Guardado cancelado" };
     }
 
@@ -307,6 +310,7 @@ ipcMain.handle("generate-result-file", async () => {
       processingTime: totalProcessingTime,
     };
   } catch (error) {
+    processingStartTime = null;
     return { success: false, error: error.message };
   }
 });
@@ -382,6 +386,7 @@ ipcMain.handle("generate-internal-comparison-file", async () => {
     });
 
     if (canceled || !filePath) {
+      processingStartTime = null;
       return { success: false, error: "Guardado cancelado" };
     }
 
@@ -408,6 +413,7 @@ ipcMain.handle("generate-internal-comparison-file", async () => {
       processingTime: totalProcessingTime,
     };
   } catch (error) {
+    processingStartTime = null;
     return { success: false, error: error.message };
   }
 });

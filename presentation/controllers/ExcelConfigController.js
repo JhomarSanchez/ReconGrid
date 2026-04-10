@@ -1,4 +1,5 @@
 const ExcelRepositoryImpl = require("../../data/repositories/ExcelRepositoryImpl");
+const { formatUserError } = require("../utils/formatUserError");
 
 class ExcelConfigController {
   constructor() {
@@ -17,7 +18,7 @@ class ExcelConfigController {
     } catch (error) {
       return {
         success: false,
-        error: error.message,
+        error: formatUserError(error, "No se pudo cargar el archivo fuente."),
       };
     }
   }
@@ -32,7 +33,7 @@ class ExcelConfigController {
     } catch (error) {
       return {
         success: false,
-        error: error.message,
+        error: formatUserError(error, "No se pudo cargar el archivo objetivo."),
       };
     }
   }
@@ -55,14 +56,14 @@ class ExcelConfigController {
     if (!this.sourceFile) {
       throw new Error("Archivo fuente no cargado");
     }
-    this.sourceFile.setHeaderRow(parseInt(rowNumber));
+    this.sourceFile.setHeaderRow(parseInt(rowNumber, 10));
   }
 
   setTargetHeaderRow(rowNumber) {
     if (!this.targetFile) {
       throw new Error("Archivo objetivo no cargado");
     }
-    this.targetFile.setHeaderRow(parseInt(rowNumber));
+    this.targetFile.setHeaderRow(parseInt(rowNumber, 10));
   }
 
   getSourcePreview() {
@@ -97,8 +98,8 @@ class ExcelConfigController {
     if (!this.sourceFile) {
       throw new Error("Archivo fuente no cargado");
     }
-    const columns = this.getSourceColumns().filter((col) =>
-      columnLetters.includes(col.letter)
+    const columns = this.getSourceColumns().filter((column) =>
+      columnLetters.includes(column.letter)
     );
     this.sourceFile.setSearchColumns(columns);
   }
@@ -107,8 +108,8 @@ class ExcelConfigController {
     if (!this.targetFile) {
       throw new Error("Archivo objetivo no cargado");
     }
-    const columns = this.getTargetColumns().filter((col) =>
-      columnLetters.includes(col.letter)
+    const columns = this.getTargetColumns().filter((column) =>
+      columnLetters.includes(column.letter)
     );
     this.targetFile.setSearchColumns(columns);
   }
@@ -117,8 +118,8 @@ class ExcelConfigController {
     if (!this.sourceFile) {
       throw new Error("Archivo fuente no cargado");
     }
-    const columns = this.getSourceColumns().filter((col) =>
-      columnLetters.includes(col.letter)
+    const columns = this.getSourceColumns().filter((column) =>
+      columnLetters.includes(column.letter)
     );
     this.sourceFile.setDataColumns(columns);
   }
@@ -127,8 +128,8 @@ class ExcelConfigController {
     if (!this.targetFile) {
       throw new Error("Archivo objetivo no cargado");
     }
-    const columns = this.getTargetColumns().filter((col) =>
-      columnLetters.includes(col.letter)
+    const columns = this.getTargetColumns().filter((column) =>
+      columnLetters.includes(column.letter)
     );
     this.targetFile.setDataColumns(columns);
   }
@@ -149,7 +150,7 @@ class ExcelConfigController {
       return { valid: false, message: "Hoja no seleccionada" };
     }
     if (this.sourceFile.searchColumns.length === 0) {
-      return { valid: false, message: "Columnas de búsqueda no seleccionadas" };
+      return { valid: false, message: "Columnas de busqueda no seleccionadas" };
     }
     if (this.sourceFile.dataColumns.length === 0) {
       return { valid: false, message: "Columnas de datos no seleccionadas" };
@@ -165,7 +166,7 @@ class ExcelConfigController {
       return { valid: false, message: "Hoja no seleccionada" };
     }
     if (this.targetFile.searchColumns.length === 0) {
-      return { valid: false, message: "Columnas de búsqueda no seleccionadas" };
+      return { valid: false, message: "Columnas de busqueda no seleccionadas" };
     }
     if (this.targetFile.dataColumns.length === 0) {
       return { valid: false, message: "Columnas de datos no seleccionadas" };
