@@ -1,42 +1,43 @@
 # ReconGrid App
 
-ReconGrid es una aplicacion de escritorio construida con Electron para reconciliar datos tabulares, comparar workbooks de Excel y generar archivos de salida auditables.
+ReconGrid is an Electron desktop application for spreadsheet reconciliation, workbook comparison, and auditable Excel exports.
 
-![Vista general de ReconGrid](docs/assets/recongrid-overview.svg)
+![ReconGrid overview](docs/assets/recongrid-overview.svg)
 
-## Flujos visibles
-- Comparacion entre dos archivos Excel.
-- Comparacion de columnas dentro de una misma hoja.
+## Visible workflows
+- Compare two Excel files.
+- Compare two columns within the same worksheet.
 
-## Capacidades principales
-- configuracion explicita de hoja, fila de encabezados y columnas;
-- matching flexible de identificadores con indices en memoria;
-- comparacion interna con columna de veredicto;
-- exportacion de resultados en Excel;
-- progreso visible y mensajes de error mas claros durante cargas largas.
+## Core capabilities
+- Explicit worksheet, header-row, and column configuration.
+- Flexible identifier matching backed by in-memory indexes.
+- Internal comparison output with a verdict column.
+- Excel export as the final operational artifact.
+- Clearer progress and error feedback during long-running jobs.
 
-## Arquitectura
-- `presentation/`: vistas HTML, scripts del renderer y controladores.
-- `domain/`: entidades y casos de uso.
-- `data/`: repositorios y servicios de lectura y escritura.
-- `infrastructure/`: configuraciones y componentes auxiliares heredados.
+## Architecture
+- `presentation/`: HTML views, renderer scripts, and UI controllers.
+- `domain/`: entities and use cases.
+- `data/`: repositories plus Excel read/write services.
+- `infrastructure/`: auxiliary configuration and inherited support modules.
 
-## Comandos
+## Commands
 ```bash
 npm start
 npm run start:large
 npm test
 npm run bench:matching
 npm run dist:win
+npm run dist:linux
 npm run dist:mac
 ```
 
-## Desarrollo local
+## Local development
 ```bash
 npm install
 npm start
 ```
 
-## Documentacion publica del proyecto
-- [Motor de matching](docs/matching-engine.md)
-- [Checklist de release](docs/release-checklist.md)
+## Public project docs
+- [Matching engine](docs/matching-engine.md)
+- [Release checklist](docs/release-checklist.md)

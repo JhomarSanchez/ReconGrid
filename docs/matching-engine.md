@@ -1,20 +1,20 @@
 # Matching Engine
 
-## Resumen
-ReconGrid compara registros entre dos archivos Excel usando un indice en memoria para evitar busquedas completas repetidas sobre el archivo destino.
+## Overview
+ReconGrid compares records across two Excel files by building an in-memory index for the target file, avoiding repeated full scans during matching.
 
-## Orden de resolucion
-1. Coincidencia exacta.
-2. Coincidencia con guiones reemplazados por espacios.
-3. Coincidencia compacta sin guiones ni espacios.
-4. Coincidencia por variaciones con barras.
+## Resolution order
+1. Exact match.
+2. Hyphen-to-space normalized match.
+3. Compact match without hyphens or spaces.
+4. Slash-variation match.
 
-## Ejemplos
-- `ABC-123` puede coincidir con `ABC 123`
-- `ABC-123` puede coincidir con `ABC123`
-- `ABC-123` puede coincidir con `ABC/123`
+## Examples
+- `ABC-123` can match `ABC 123`
+- `ABC-123` can match `ABC123`
+- `ABC-123` can match `ABC/123`
 
-## Notas operativas
-- La fila origen siempre se conserva en el resultado.
-- El motor evita duplicados reales cuando una fila repetida trae exactamente el mismo contenido.
-- La exportacion final se genera en un archivo Excel nuevo.
+## Operational notes
+- Every source row is preserved in the final output.
+- The engine skips only true duplicates when a repeated row has identical full-row content.
+- The final result is always exported into a newly generated Excel file.

@@ -9,7 +9,8 @@
     "dist": "electron-builder",
     "dist:mac": "electron-builder --mac",
     "dist:win": "electron-builder --win",
-    "test": "node --test --test-isolation=none",
+    "dist:linux": "electron-builder --linux AppImage",
+    "test": "node tests/run-tests.js",
     "bench:matching": "node benchmarks/compare-excels.benchmark.js"
   },
   "keywords": [
@@ -101,6 +102,17 @@
       "gatekeeperAssess": false,
       "entitlements": "build-resources/entitlements.mac.plist",
       "entitlementsInherit": "build-resources/entitlements.mac.plist"
+    },
+    "linux": {
+      "category": "Office",
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
     },
     "pkg": {
       "installLocation": "/Applications",

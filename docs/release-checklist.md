@@ -1,17 +1,18 @@
 # Release Checklist
 
-## Antes de empaquetar
-1. Ejecutar `npm test`.
-2. Ejecutar `npm run bench:matching`.
-3. Revisar branding visible y nombres de artefactos.
-4. Confirmar que el README del proyecto este actualizado.
+## Before packaging
+1. Run `npm test`.
+2. Run `npm run bench:matching`.
+3. Review visible branding and artifact names.
+4. Confirm that the project README is current.
 
-## Empaquetado
-1. Ejecutar `npm run dist:win`.
-2. Ejecutar `npm run dist:mac`.
-3. Verificar que los artefactos usen el nombre `ReconGrid`.
+## Packaging
+1. Run `npm run dist:win`.
+2. Run `npm run dist:linux`.
+3. Run `npm run dist:mac`.
+4. Verify that generated artifacts use the `ReconGrid` name.
 
-## Revision final
-1. Abrir la app empaquetada y revisar el nombre del producto.
-2. Confirmar que no haya referencias heredadas en instalador, accesos directos o pantallas.
-3. Validar que el archivo exportado se genere correctamente.
+## Final review
+1. Open the packaged app and check the product name.
+2. Confirm there are no inherited naming traces in installers, shortcuts, or screens.
+3. Validate that the export file is generated correctly.
