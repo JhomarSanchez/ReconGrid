@@ -23,21 +23,17 @@ jobs:
             os: macos-14
             build_command: npm run dist:mac
             artifact_name: ReconGrid-macOS-AppleSilicon
-            artifact_glob: alter-osiris/dist/*.pkg
+            artifact_glob: dist/*.pkg
           - label: Windows x64
             os: windows-latest
             build_command: npm run dist:win
             artifact_name: ReconGrid-Windows-x64
-            artifact_glob: alter-osiris/dist/*.exe
+            artifact_glob: dist/*.exe
           - label: Linux x64
             os: ubuntu-latest
             build_command: npm run dist:linux
             artifact_name: ReconGrid-Linux-x64
-            artifact_glob: alter-osiris/dist/*.AppImage
-
-    defaults:
-      run:
-        working-directory: alter-osiris
+            artifact_glob: dist/*.AppImage
 
     steps:
       - name: Checkout code
@@ -48,7 +44,7 @@ jobs:
         with:
           node-version: "20"
           cache: "npm"
-          cache-dependency-path: alter-osiris/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -60,6 +56,10 @@ jobs:
         run: ${{ matrix.build_command }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: List build artifacts
+        shell: bash
+        run: ls -la dist/
 
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
