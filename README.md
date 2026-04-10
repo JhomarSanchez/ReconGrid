@@ -4,6 +4,14 @@ ReconGrid is an Electron desktop application for spreadsheet reconciliation, wor
 
 ![ReconGrid overview](docs/assets/recongrid-overview.svg)
 
+## Usage Notice
+
+This repository is publicly visible strictly for portfolio, technical evaluation, and recruitment review.
+
+The source code is proprietary and not open source.
+
+No permission is granted to use, copy, modify, redistribute, sublicense, train on, republish, commercialize, or create derivative works from this software, in whole or in part, without prior explicit written permission from the author.
+
 ## Visible workflows
 - Compare two Excel files.
 - Compare two columns within the same worksheet.
