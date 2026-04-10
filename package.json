@@ -36,7 +36,14 @@
       "!**/*.md",
       "!.gitignore",
       "!.vscode",
-      "!dist"
+      "!dist",
+      "!presentation/views/catalog-*.html",
+      "!presentation/controllers/CatalogController.js",
+      "!domain/usecases/ProcessCatalogUseCase.js",
+      "!domain/entities/Catalog*.js",
+      "!infrastructure/parsers/CatalogParser.js",
+      "!infrastructure/config/vehicle*.js",
+      "!presentation/assets/icon.png"
     ],
     "win": {
       "target": [

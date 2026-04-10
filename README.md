@@ -2,17 +2,19 @@
 
 ReconGrid es una aplicacion de escritorio construida con Electron para reconciliacion de hojas de calculo, comparacion de archivos Excel y generacion de salidas auditables.
 
-La V1 publica del proyecto se concentra en tres flujos:
+El producto se concentra en dos flujos visibles:
 
 - comparacion entre dos archivos Excel;
-- normalizacion de columnas con texto semiestructurado;
 - comparacion de columnas dentro de una misma hoja.
+
+La normalizacion flexible de identificadores forma parte del motor de comparacion entre archivos, no de un modulo separado en la experiencia publica.
 
 ## Propuesta de valor
 
 ReconGrid traslada trabajo manual de Excel a flujos controlados por aplicacion:
 
 - configuracion explicita de hojas, encabezados y columnas;
+- reconciliacion entre datasets tabulares;
 - normalizacion flexible de identificadores;
 - procesamiento orientado a archivos grandes;
 - exportacion de resultados reutilizables;
@@ -31,11 +33,7 @@ Permite configurar un archivo base y un archivo de contraste para cruzar registr
 
 El resultado conserva las filas del archivo base y agrega los datos coincidentes del segundo archivo cuando encuentra match.
 
-### 2. Normalizacion de registros
-
-Este flujo procesa columnas con cadenas semiestructuradas y las convierte en una salida tabular. El parser separa multiples entradas dentro de una misma celda, conserva columnas adicionales del origen y registra filas que no pudieron interpretarse correctamente.
-
-### 3. Comparacion interna de columnas
+### 2. Comparacion interna de columnas
 
 Compara dos columnas dentro de una misma hoja y genera un archivo nuevo con:
 
@@ -148,4 +146,4 @@ npm run start:large
 - ampliar cobertura de pruebas para casos de uso criticos;
 - documentar reglas de matching y fixtures de benchmark;
 - endurecer la frontera IPC en Electron;
-- mejorar logging y diagnositco operativo.
+- mejorar logging y diagnostico operativo.
