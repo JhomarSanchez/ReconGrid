@@ -31,31 +31,15 @@ function createWindow() {
     CatalogController = require("./presentation/controllers/CatalogController");
     InternalComparisonController = require("./presentation/controllers/InternalComparisonController");
   }
-  // Determinar la ruta correcta del icono según el entorno
-  let iconPath;
-  if (app.isPackaged) {
-    // En producción: el icono está en resources/assets (extraResources)
-    iconPath = path.join(process.resourcesPath, "assets", "icon.ico");
-  } else {
-    // En desarrollo: el icono está en la carpeta del proyecto
-    iconPath = path.join(__dirname, "assets", "icon.ico");
-  }
-
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
-    icon: iconPath,
     autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
     },
   });
-
-  // Asegurar que el icono se aplique en Windows
-  if (process.platform === "win32") {
-    mainWindow.setIcon(iconPath);
-  }
 
   // Inicializar controladores
   configController = new ExcelConfigController();
@@ -121,7 +105,7 @@ ipcMain.on("navigate-to", (event, page) => {
 // Selección de modo de operación
 ipcMain.on("select-mode", (event, mode) => {
   if (mode === "catalog") {
-    // Redirigir a la pantalla de catalogación (la crearemos después)
+    // Redirigir al flujo de normalizacion
     mainWindow.loadFile("presentation/views/catalog-file-selection.html");
   } else if (mode === "compare") {
     // Redirigir a la pantalla de comparación (la actual index.html)
@@ -330,10 +314,10 @@ ipcMain.handle("generate-result-file", async () => {
 
     // Mostrar diálogo para seleccionar ubicación de guardado
     const { filePath, canceled } = await dialog.showSaveDialog(mainWindow, {
-      title: "Guardar archivo de resultados",
+      title: "Guardar resultados de ReconGrid",
       defaultPath: path.join(
         app.getPath("documents"),
-        `resultado_${Date.now()}.xlsx`
+        `recongrid_resultados_${Date.now()}.xlsx`
       ),
       filters: [{ name: "Excel Files", extensions: ["xlsx"] }],
     });
@@ -395,11 +379,11 @@ ipcMain.on("open-result-file", (event, filePath) => {
 
 // ==================== CATALOGACIÓN ====================
 
-// Seleccionar múltiples archivos de catálogo
+// Seleccionar multiples archivos para normalizacion
 ipcMain.handle("select-catalog-files", async () => {
   try {
     const result = await dialog.showOpenDialog(mainWindow, {
-      title: "Seleccionar archivos de catálogo",
+      title: "Seleccionar archivos para normalizacion",
       filters: [
         { name: "Archivos Excel", extensions: ["xlsx", "xls"] },
         { name: "Todos los archivos", extensions: ["*"] },
@@ -420,10 +404,10 @@ ipcMain.handle("select-catalog-files", async () => {
   }
 });
 
-// Procesar archivos de catálogo
+// Procesar archivos de normalizacion
 ipcMain.handle("process-catalog-files", async (_event, fileConfigs) => {
   try {
-    console.log("\n🔄 Iniciando procesamiento de catálogos...");
+    console.log("\nIniciando procesamiento de normalizacion...");
 
     // fileConfigs debe ser un array de objetos: [{ filePath, sheetName, columnIndex }, ...]
     const result = await catalogController.processCatalogs(
@@ -444,12 +428,12 @@ ipcMain.handle("process-catalog-files", async (_event, fileConfigs) => {
       stats: result.stats,
     };
   } catch (error) {
-    console.error("❌ Error en procesamiento de catálogos:", error);
+    console.error("Error en procesamiento de normalizacion:", error);
     return { success: false, error: error.message };
   }
 });
 
-// Obtener detalles de errores del catálogo
+// Obtener detalles de errores del procesamiento
 ipcMain.handle("get-catalog-errors", async () => {
   try {
     const errors = catalogController.getAllErrorDetails();
@@ -459,7 +443,7 @@ ipcMain.handle("get-catalog-errors", async () => {
   }
 });
 
-// Validar archivos de catálogo sin procesarlos
+// Validar archivos sin procesarlos
 ipcMain.handle("validate-catalog-files", async (_event, filePaths) => {
   try {
     const CatalogParser = require("./infrastructure/parsers/CatalogParser");
@@ -488,7 +472,7 @@ ipcMain.handle(
   }
 );
 
-// Exportar catálogo procesado
+// Exportar resultados procesados
 ipcMain.handle("export-catalog", async () => {
   try {
     const catalogResults = catalogController.getCatalogResults();
@@ -496,16 +480,16 @@ ipcMain.handle("export-catalog", async () => {
     if (!catalogResults || catalogResults.results.length === 0) {
       return {
         success: false,
-        error: "No hay datos de catálogo para exportar",
+        error: "No hay resultados de normalizacion para exportar",
       };
     }
 
     // Mostrar diálogo para guardar
     const { filePath, canceled } = await dialog.showSaveDialog(mainWindow, {
-      title: "Guardar catálogo procesado",
+      title: "Guardar resultados de normalizacion",
       defaultPath: path.join(
         app.getPath("documents"),
-        `catalogo_${Date.now()}.xlsx`
+        `recongrid_normalizacion_${Date.now()}.xlsx`
       ),
       filters: [{ name: "Excel Files", extensions: ["xlsx"] }],
     });
@@ -561,7 +545,7 @@ ipcMain.handle("export-catalog", async () => {
 
     await workbook.xlsx.writeFile(filePath);
 
-    console.log(`✅ Catálogo exportado: ${filePath}`);
+    console.log(`Resultados exportados: ${filePath}`);
 
     return {
       success: true,
@@ -569,12 +553,12 @@ ipcMain.handle("export-catalog", async () => {
       totalItems: catalogResults.stats.totalItems,
     };
   } catch (error) {
-    console.error("❌ Error exportando catálogo:", error);
+    console.error("Error exportando resultados:", error);
     return { success: false, error: error.message };
   }
 });
 
-// Resetear controlador de catálogo
+// Resetear controlador del flujo de normalizacion
 ipcMain.on("reset-catalog", () => {
   catalogController.reset();
 });
@@ -643,10 +627,10 @@ ipcMain.handle("start-internal-comparison", async (event, config) => {
 ipcMain.handle("generate-internal-comparison-file", async () => {
   try {
     const { filePath, canceled } = await dialog.showSaveDialog(mainWindow, {
-      title: "Guardar archivo de resultados",
+      title: "Guardar resultados de ReconGrid",
       defaultPath: path.join(
         app.getPath("documents"),
-        `comparacion_interna_${Date.now()}.xlsx`
+        `recongrid_comparacion_interna_${Date.now()}.xlsx`
       ),
       filters: [{ name: "Excel Files", extensions: ["xlsx"] }],
     });

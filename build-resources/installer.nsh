@@ -1,4 +1,4 @@
-; Osiris NSIS Installer Script
+; ReconGrid NSIS Installer Script
 ; Este archivo contiene configuraciones personalizadas para el instalador
 
 !macro customInit

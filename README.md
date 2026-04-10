@@ -1,259 +1,95 @@
-# Osiris
+# ReconGrid
 
-Osiris is a desktop application built with Electron for high-volume Excel processing. It is designed for operational teams that need more control, repeatability, and speed than spreadsheet-only workflows typically provide.
+ReconGrid es una aplicacion de escritorio construida con Electron para reconciliacion de hojas de calculo, comparacion de archivos Excel y generacion de salidas auditables.
 
-The application focuses on three core scenarios:
+La V1 publica del proyecto se concentra en tres flujos:
 
-- catalog normalization from semi-structured strings;
-- cross-workbook comparison and data extraction;
-- in-sheet column comparison with result generation.
+- comparacion entre dos archivos Excel;
+- normalizacion de columnas con texto semiestructurado;
+- comparacion de columnas dentro de una misma hoja.
 
-Unlike a manual Excel workflow, Osiris turns these tasks into deterministic application flows with explicit configuration, controlled parsing, indexed lookups, progress reporting, and exportable outputs.
+## Propuesta de valor
 
-## Why This Project Exists
+ReconGrid traslada trabajo manual de Excel a flujos controlados por aplicacion:
 
-In many business environments, Excel is used as both a data source and a processing engine. That works up to a point, but it becomes fragile when the workload grows in any of these ways:
+- configuracion explicita de hojas, encabezados y columnas;
+- normalizacion flexible de identificadores;
+- procesamiento orientado a archivos grandes;
+- exportacion de resultados reutilizables;
+- trazabilidad para revisiones operativas.
 
-- large row counts;
-- inconsistent identifier formatting;
-- repeated manual preprocessing;
-- multiple files that must be reconciled;
-- catalog-like text that needs to be parsed into structured fields.
+## Capacidades principales
 
-Osiris addresses those problems by moving the heavy lifting into application code while preserving Excel as the input and output format.
+### 1. Comparacion entre archivos
 
-## Core Product Capabilities
+Permite configurar un archivo base y un archivo de contraste para cruzar registros. El usuario define:
 
-### 1. Semi-Structured Parsing
+- hoja;
+- fila de encabezados;
+- columnas de busqueda;
+- columnas de datos a anexar.
 
-This mode processes workbooks that contain semi-structured catalog strings and turns them into structured records.
+El resultado conserva las filas del archivo base y agrega los datos coincidentes del segundo archivo cuando encuentra match.
 
-Depending on the source format, the parser can extract structured attributes and preserve additional business columns from the original row.
+### 2. Normalizacion de registros
 
-It also keeps row-level error details for entries that cannot be parsed cleanly, which is an important operational feature for data quality review.
+Este flujo procesa columnas con cadenas semiestructuradas y las convierte en una salida tabular. El parser separa multiples entradas dentro de una misma celda, conserva columnas adicionales del origen y registra filas que no pudieron interpretarse correctamente.
 
-### 2. Workbook-to-Workbook Comparison and Extraction
+### 3. Comparacion interna de columnas
 
-This mode compares a source Excel file against a target Excel file after the user configures:
+Compara dos columnas dentro de una misma hoja y genera un archivo nuevo con:
 
-- worksheet;
-- header row;
-- search columns;
-- output data columns.
+- los datos originales;
+- una columna de veredicto;
+- conteos agregados de coincidencias y diferencias.
 
-The output keeps every source row and appends matching target-side data when a match exists.
+## Arquitectura
 
-### 3. Internal Column Comparison
+El proyecto mantiene una arquitectura por capas:
 
-This mode compares two columns within the same worksheet and creates a new output file that includes:
+- `presentation/`: vistas HTML, scripts del renderer y controladores de UI.
+- `domain/`: entidades y casos de uso.
+- `data/`: repositorios y servicios de lectura/escritura.
+- `infrastructure/`: parsers, configuraciones y detalles tecnicos de soporte.
 
-- the original row data;
-- a comparison result column;
-- aggregate counts for equal vs different values.
+Esta separacion permite mantener la logica de negocio fuera de la UI y deja el procesamiento de Excel encapsulado en casos de uso y servicios.
 
-## Software Architecture
+## Aspectos tecnicos destacados
 
-The project is organized in layered form to keep business logic separate from UI and I/O concerns:
+### Motor de comparacion indexado
 
-- `presentation/`: HTML views, renderer scripts, and UI controllers.
-- `domain/`: entities and use cases that represent business rules.
-- `data/`: repository implementations and Excel reader/writer services.
-- `infrastructure/`: parsers and supporting configuration artifacts.
-- `assets/` and `build-resources/`: application icons and packaging resources.
+La comparacion principal no hace escaneos completos repetidos sobre el archivo objetivo. Primero construye indices basados en `Map` y luego resuelve busquedas con acceso directo.
 
-This is a practical, maintainable separation:
-
-- UI concerns stay in Electron views and controllers.
-- comparison and parsing rules live in domain/use-case code;
-- Excel file handling is abstracted behind repository and service layers;
-- packaging remains isolated from runtime logic.
-
-## Technical Design Highlights
-
-### Indexed Comparison Engine
-
-The main comparison workflow is not implemented as a naive row-by-row nested scan.
-
-Instead, the target workbook is pre-indexed into multiple `Map`-based lookup tables:
-
-- exact code index;
-- normalized code index;
-- compact code index;
-- slash-variation index.
-
-This enables the engine to support matching patterns such as:
+Esto permite manejar variaciones frecuentes de identificadores, por ejemplo:
 
 - `ABC-123` -> `ABC 123`
 - `ABC-123-D` -> `ABC123D`
 - `ABC-123` -> `ABC/123`
 - `ABC-123` -> `ABC\123`
 
-The comparison pipeline then works like this:
+### Estrategia de lectura adaptativa
 
-1. Read all target rows.
-2. Build search indices once.
-3. Read source rows.
-4. For each source row, derive candidate search keys.
-5. Resolve matches through constant-time hash-map lookups instead of repeatedly scanning the full target sheet.
+El sistema elige diferentes rutas de carga segun el tamano del archivo:
 
-### Duplicate-Aware Processing
+- carga estandar para libros pequenos;
+- lectura optimizada para archivos grandes;
+- previews parciales cuando no conviene cargar todo el workbook.
 
-The engine hashes complete source rows and keeps a processed-code cache to skip true duplicate rows during the comparison phase. This reduces redundant work in files that contain repeated records.
+### Exportacion como salida principal
 
-### Adaptive Excel Reading Strategy
+ReconGrid no se limita a mostrar resultados en pantalla. Genera nuevos archivos Excel con:
 
-The reader service chooses different loading paths depending on file size:
+- encabezados claros;
+- orden consistente;
+- columnas ajustadas;
+- resultados listos para revision o entrega.
 
-- standard workbook loading for smaller files;
-- stream-based reading for larger files;
-- selective preview and worksheet metadata extraction when a full load would be unnecessarily expensive.
-
-This is paired with:
-
-- raised Node/Electron heap limits;
-- batch-style row processing;
-- periodic event loop yielding;
-- optional manual garbage collection in large-run mode.
-
-### Export as a First-Class Output
-
-Results are not just shown on screen. The application generates new Excel files with:
-
-- explicit headers;
-- preserved row ordering;
-- result-side styling;
-- autosized columns;
-- separate flows for cross-file and internal comparison outputs.
-
-## Comparison Algorithm Deep Dive
-
-The most important engineering advantage in Osiris is the comparison strategy.
-
-### Naive Spreadsheet-Style Exact Match
-
-A classic exact-match `VLOOKUP` or `BUSCARV` workflow is often used like this:
-
-- for each source row,
-- scan the target table until the requested code is found,
-- repeat that search for every source row.
-
-For unsorted exact-match search, that is effectively a repeated linear scan. In complexity terms, it behaves like:
-
-```text
-O(S * T)
-```
-
-Where:
-
-- `S` = number of source rows;
-- `T` = number of target rows.
-
-If each row can contain multiple candidate codes, the practical workload gets even larger.
-
-### Osiris Strategy
-
-Osiris converts the target dataset into hash-map indices first, then performs direct lookups:
-
-```text
-Index build: O(T)
-Lookups:     O(S)
-Total:       O(S + T)
-```
-
-This is the core reason the application scales far better than a spreadsheet formula workflow for exact-match reconciliation.
-
-### Why the "2380x Faster Than VLOOKUP" Claim Can Make Sense
-
-The exact wall-clock multiplier depends on:
-
-- workbook size;
-- number of search columns;
-- code normalization cost;
-- hardware;
-- Excel recalculation overhead;
-- file I/O and memory pressure.
-
-So, an exact universal claim would be bad engineering. However, the order-of-magnitude argument is solid.
-
-Example:
-
-- source rows: `6,000`
-- target rows: `4,000`
-- naive exact-match scan: up to `24,000,000` row comparisons
-- indexed approach: about `10,000` primary row passes before normalization overhead
-
-That is roughly:
-
-```text
-24,000,000 / 10,000 = 2,400x
-```
-
-So a statement such as "around 2,380x more efficient than an exact-match spreadsheet scan" is plausible as an algorithmic and benchmark-scale claim for mid-sized workloads, but it should be presented as:
-
-- workload-dependent;
-- based on exact-match scan behavior;
-- not a universal guarantee for every workbook.
-
-### Practical Performance Notes
-
-In addition to asymptotic gains, Osiris improves real execution time because:
-
-- the target file is indexed once, not scanned repeatedly;
-- flexible normalization rules are pre-structured into multiple lookup paths;
-- duplicate work is skipped when the source contains repeated identical rows;
-- the workflow runs in application memory rather than as thousands of spreadsheet formula evaluations.
-
-## Engineering Considerations
-
-### Time Complexity
-
-- Cross-file comparison: optimized from repeated scan behavior toward indexed lookup behavior.
-- Semi-structured parsing: linear with respect to processed rows, plus regex parsing cost per parsed cell.
-- Internal comparison: linear with respect to worksheet rows.
-
-### Space Complexity
-
-The comparison engine intentionally trades memory for speed:
-
-- all relevant rows are materialized into application objects;
-- multiple indices are built for the target workbook;
-- result rows are retained before export.
-
-That is a reasonable design choice for desktop batch processing because it dramatically reduces repeated search work, but it also means very large files can still be memory-intensive.
-
-### Data Normalization Strategy
-
-The comparison use case normalizes codes into several representations:
-
-- raw exact form;
-- hyphen-to-space form;
-- compact form without separators;
-- slash and backslash variants.
-
-This is a practical approach for real operational data, where the same identifier often appears in inconsistent human-entered formats.
-
-### Error Handling
-
-The project includes explicit handling for:
-
-- invalid or missing files;
-- large-file memory pressure;
-- worksheet access errors;
-- row-level parsing failures;
-- IPC-level operation failures during UI flows.
-
-### User Experience for Long-Running Jobs
-
-The application reports progress back to the renderer during heavy operations. This matters in desktop processing tools because perceived responsiveness is part of system quality, not just raw throughput.
-
-## Repository Structure
+## Estructura del proyecto
 
 ```text
 alter-osiris/
 |-- index.js
 |-- index.html
-|-- package.json
-|-- assets/
 |-- build-resources/
 |-- data/
 |   |-- repositories/
@@ -266,88 +102,50 @@ alter-osiris/
 |   |-- config/
 |   `-- parsers/
 `-- presentation/
-    |-- assets/
     |-- controllers/
     |-- scripts/
     `-- views/
 ```
 
-## Runtime and Packaging
-
-The application is packaged with `electron-builder` and currently includes:
-
-- Windows x64 installer via NSIS;
-- Windows x64 portable build;
-- macOS arm64 package output;
-- dedicated icons and packaging resources in `build-resources/`.
-
-Build metadata is configured directly in `package.json`.
-
-## Technology Stack
+## Stack
 
 - Electron
-- Electron Builder
+- electron-builder
 - ExcelJS
 - Bootstrap 5
 - JavaScript CommonJS
 
-## Requirements
+## Scripts disponibles
 
-Recommended environment:
+| Script | Proposito |
+| --- | --- |
+| `npm start` | Inicia la aplicacion con configuracion estandar de memoria. |
+| `npm run start:large` | Inicia la app con mayor presupuesto de memoria para cargas pesadas. |
+| `npm run dist` | Genera paquetes distribuibles. |
+| `npm run dist:win` | Genera paquetes para Windows. |
+| `npm run dist:mac` | Genera paquetes para macOS. |
 
-- Node.js LTS
-- npm
-- Windows or macOS for native packaging workflows
-
-## Installation
+## Instalacion
 
 ```bash
 npm install
 ```
 
-## Development
-
-Start the application:
+## Desarrollo
 
 ```bash
 npm start
 ```
 
-For heavier workloads:
+Para cargas mas exigentes:
 
 ```bash
 npm run start:large
 ```
 
-## Available Scripts
+## Siguientes pasos tecnicos
 
-| Script | Purpose |
-| --- | --- |
-| `npm start` | Starts the Electron application with the standard memory configuration. |
-| `npm run start:large` | Starts the app with a larger memory budget for heavier Excel workloads. |
-| `npm run dist` | Builds distributable application packages. |
-| `npm run dist:win` | Builds Windows packages. |
-| `npm run dist:mac` | Builds macOS packages. |
-
-## Current Technical Trade-Offs
-
-From a software engineering perspective, these are the most relevant current trade-offs in the codebase:
-
-- The comparison engine is well optimized algorithmically, but it still materializes full row collections in memory.
-- The project is strong in operational functionality, but it does not yet include an automated test suite.
-- The Electron application is optimized for internal utility workflows rather than hardened distribution security.
-- Packaging is already defined, which is a strong sign of product maturity compared with many internal-only tools.
-
-## Recommended Next Engineering Steps
-
-If this application is expected to grow or be maintained by a broader engineering team, the highest-value next steps would be:
-
-- add unit tests for comparison and parsing use cases;
-- add reproducible benchmark fixtures and publish measured performance baselines;
-- move Electron renderer access toward a preload-based IPC boundary;
-- introduce structured logging levels for operational diagnostics;
-- document representative sample datasets for each workflow.
-
-## License
-
-This project is licensed under `ISC`, as defined in `package.json`.
+- ampliar cobertura de pruebas para casos de uso criticos;
+- documentar reglas de matching y fixtures de benchmark;
+- endurecer la frontera IPC en Electron;
+- mejorar logging y diagnositco operativo.

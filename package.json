@@ -1,6 +1,6 @@
 {
-  "name": "osiris",
-  "version": "1.2.0",
+  "name": "recongrid",
+  "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -25,8 +25,8 @@
     "exceljs": "^4.4.0"
   },
   "build": {
-    "appId": "com.castelmotors.osiris",
-    "productName": "Osiris",
+    "appId": "com.recongrid.desktop",
+    "productName": "ReconGrid",
     "directories": {
       "output": "dist",
       "buildResources": "build-resources"
@@ -36,20 +36,9 @@
       "!**/*.md",
       "!.gitignore",
       "!.vscode",
-      "!dist",
-      "assets/**/*"
-    ],
-    "extraResources": [
-      {
-        "from": "assets",
-        "to": "assets",
-        "filter": [
-          "**/*"
-        ]
-      }
+      "!dist"
     ],
     "win": {
-      "icon": "build-resources/icon.ico",
       "target": [
         {
           "target": "nsis",
@@ -73,17 +62,14 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": "always",
       "createStartMenuShortcut": true,
-      "shortcutName": "Osiris",
+      "shortcutName": "ReconGrid",
       "deleteAppDataOnUninstall": true,
-      "installerIcon": "build-resources/icon.ico",
-      "uninstallerIcon": "build-resources/icon.ico",
       "include": "installer.nsh"
     },
     "portable": {
-      "artifactName": "Osiris-Portable.exe"
+      "artifactName": "ReconGrid-Portable.exe"
     },
     "mac": {
-      "icon": "build-resources/icon.icns",
       "category": "public.app-category.business",
       "target": [
         {

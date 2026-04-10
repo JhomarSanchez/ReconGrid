@@ -4,7 +4,7 @@ const CatalogFile = require("../../domain/entities/CatalogFile");
 
 /**
  * CatalogParser
- * Parser de archivos Excel de catálogos de vehículos
+ * Parser de archivos Excel con registros semiestructurados.
  */
 class CatalogParser {
   /**
@@ -77,7 +77,7 @@ class CatalogParser {
   }
 
   /**
-   * Parsea la cadena de vehículos (CAR CATALOGUE o VEHICULO MASTER)
+   * Parsea una cadena semiestructurada de registros.
    * Ejemplos válidos:
    * - "TOYOTA HILUX (2016-2020); NISSAN FRONTIER (2018-)"
    * - "RENAULT-9(1981,1986" (sin cierre de paréntesis)
@@ -145,10 +145,10 @@ class CatalogParser {
           const parts = vehicleInfo.split(/[\s\-]+/).filter(Boolean);
           const marca = parts[0].toUpperCase();
 
-          // El vehículo incluye el resto del nombre + información adicional
+          // El registro incluye el resto del nombre y la informacion adicional
           let vehiculo = parts.slice(1).join(" ").trim();
 
-          // Agregar información adicional al nombre del vehículo si existe
+          // Agregar informacion adicional al nombre del registro si existe
           if (additionalInfo) {
             vehiculo = vehiculo
               ? `${vehiculo} ${additionalInfo}`
@@ -159,7 +159,7 @@ class CatalogParser {
           if (marca && desde) {
             results.push({
               marca,
-              vehiculo: vehiculo || marca, // Si no hay modelo, usar marca
+              vehiculo: vehiculo || marca, // Si no hay detalle, usar el grupo
               desde,
               hasta,
             });
@@ -227,7 +227,7 @@ class CatalogParser {
    * Procesa una hoja de cálculo del Excel
    * @param {Object} worksheet - La hoja de Excel a procesar
    * @param {string} fileName - Nombre del archivo
-   * @param {number} vehicleColumnIndex - Índice de la columna VEHICULO MASTER (REQUERIDO, 1-based)
+   * @param {number} vehicleColumnIndex - Índice de la columna objetivo (REQUERIDO, 1-based)
    */
   static processWorksheet(worksheet, fileName, vehicleColumnIndex) {
     const results = [];
@@ -236,7 +236,7 @@ class CatalogParser {
 
     if (!vehicleColumnIndex) {
       throw new Error(
-        "Se requiere índice de columna de vehículos para procesar la hoja"
+        "Se requiere una columna objetivo para procesar la hoja"
       );
     }
 
@@ -252,14 +252,14 @@ class CatalogParser {
       totalDataRows++;
 
       try {
-        // Obtener valor de la celda de vehículos usando la función segura
+        // Obtener valor de la celda objetivo usando una conversion segura
         const vehicleCell = row.getCell(vehicleColumnIndex);
         const vehicleString = this.cellValueToString(vehicleCell?.value);
         const lineaFabricanteString = this.cellValueToString(
           row.getCell(headerMap.get("linea fabricante"))?.value
         );
 
-        // Parsear vehículos
+        // Parsear registros
         const parsedVehicles = this.parseVehicleString(
           vehicleString,
           lineaFabricanteString
@@ -272,7 +272,7 @@ class CatalogParser {
             rowNumber,
             sheetName: worksheet.name,
             vehicleString: vehicleString || "(vacío)",
-            reason: "No se pudieron extraer datos de vehículos",
+            reason: "No se pudo interpretar el contenido de la celda",
           });
           return;
         }
@@ -285,7 +285,7 @@ class CatalogParser {
           rowData[colIndex] = this.cellValueToString(cell?.value);
         });
 
-        // Crear un ítem por cada vehículo parseado
+        // Crear un item por cada registro parseado
         for (const vehicleData of parsedVehicles) {
           const item = new CatalogItem({
             marca: vehicleData.marca,
@@ -305,7 +305,7 @@ class CatalogParser {
             rowNumber,
             sheetName: worksheet.name,
             fileName,
-            vehicleColumnIndex: vehicleColumnIndex, // Guardar índice de columna de vehículos
+            vehicleColumnIndex: vehicleColumnIndex, // Guardar indice de la columna objetivo
           });
 
           results.push(item);
@@ -333,7 +333,7 @@ class CatalogParser {
 
   /**
    * Extrae datos adicionales de la fila (columnas no estándar)
-   * Preserva los headers originales y excluye la columna de vehículos
+   * Preserva los headers originales y excluye la columna objetivo
    */
   static getAdditionalData(
     rowData,
@@ -361,7 +361,7 @@ class CatalogParser {
       // Normalizar para comparar
       const normalizedHeader = this.normalize(originalHeader);
 
-      // Excluir columnas estándar y la columna de vehículos
+      // Excluir columnas estandar y la columna objetivo
       if (
         !standardColumnKeys.includes(normalizedHeader) &&
         colIndex !== vehicleColumnIndex
@@ -378,7 +378,7 @@ class CatalogParser {
    * Procesa un archivo Excel con configuración específica de hoja y columna
    * @param {string} filePath - Ruta del archivo
    * @param {string} sheetName - Nombre de la hoja a procesar
-   * @param {number} vehicleColumnIndex - Índice de columna VEHICULO MASTER (1-based, REQUERIDO)
+   * @param {number} vehicleColumnIndex - Índice de columna objetivo (1-based, REQUERIDO)
    */
   static async parseFile(filePath, sheetName, vehicleColumnIndex) {
     const fileName = filePath.split(/[\\/]/).pop();
@@ -386,7 +386,7 @@ class CatalogParser {
 
     if (!sheetName || !vehicleColumnIndex) {
       throw new Error(
-        "Se requiere nombre de hoja y columna de vehículos para procesar el archivo"
+        "Se requiere nombre de hoja y columna objetivo para procesar el archivo"
       );
     }
 
@@ -464,7 +464,7 @@ class CatalogParser {
   }
 
   /**
-   * Valida una columna específica de una hoja para determinar si contiene datos de vehículos válidos
+   * Valida una columna especifica de una hoja para determinar si contiene datos interpretables
    * @param {string} filePath - Ruta del archivo
    * @param {string} sheetName - Nombre de la hoja a validar
    * @param {number} columnIndex - Índice de la columna a validar (1-based)
@@ -532,10 +532,10 @@ class CatalogParser {
         sampleRows,
         successRate: Math.round(successRate),
         message: isValid
-          ? `✓ Columna válida: ${parseableRows} de ${sampleRows} muestras son parseables (${Math.round(
+          ? `Columna valida: ${parseableRows} de ${sampleRows} muestras son interpretables (${Math.round(
               successRate
             )}%)`
-          : `✗ Columna inválida: Solo ${parseableRows} de ${sampleRows} muestras son parseables (${Math.round(
+          : `Columna invalida: solo ${parseableRows} de ${sampleRows} muestras son interpretables (${Math.round(
               successRate
             )}%)`,
       };
@@ -568,7 +568,7 @@ class CatalogParser {
         const headerRow = worksheet.getRow(1);
         const { headerMap, originalHeaders } = this.getHeaderMap(headerRow);
 
-        // Buscar columna de vehículos automáticamente
+        // Buscar columna objetivo automaticamente
         const hasVehicleColumn =
           headerMap.has("car catalogue") || headerMap.has("vehiculo master");
         let vehicleColIndex = null;

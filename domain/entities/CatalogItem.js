@@ -1,6 +1,6 @@
 /**
  * CatalogItem Entity
- * Representa un ítem del catálogo de vehículos con sus datos de compatibilidad
+ * Representa un registro normalizado y sus columnas asociadas.
  */
 class CatalogItem {
   constructor(data = {}) {
@@ -13,22 +13,18 @@ class CatalogItem {
     this.codeMaster = data.codeMaster || "";
     this.pais = data.pais || "";
 
-    // Metadatos opcionales para desarrollo
     this.metadata = {
       rowNumber: data.rowNumber || null,
       sheetName: data.sheetName || null,
       fileName: data.fileName || null,
     };
 
-    // Datos adicionales (columnas extra del Excel)
     this.additionalData = data.additionalData || {};
-
-    // Índice de la columna VEHICULO MASTER original (para reemplazarla en su posición)
     this.vehicleColumnIndex = data.vehicleColumnIndex || null;
   }
 
   /**
-   * Valida si el ítem tiene los campos mínimos requeridos
+   * Valida si el registro tiene los campos minimos requeridos.
    */
   isValid() {
     return (
@@ -40,16 +36,15 @@ class CatalogItem {
   }
 
   /**
-   * Convierte el ítem a un objeto plano para exportación
-   * OBSOLETO: Usar toPlainObjectWithOrder() para preservar orden original
+   * Convierte el registro a un objeto plano para exportacion.
    */
   toPlainObject() {
     return {
       "LINEA FABRICANTE": this.lineaFabricante,
-      MARCA: this.marca,
-      VEHICULO: this.vehiculo,
-      DESDE: this.desde,
-      HASTA: this.hasta,
+      GRUPO: this.marca,
+      REGISTRO: this.vehiculo,
+      VIGENCIA_DESDE: this.desde,
+      VIGENCIA_HASTA: this.hasta,
       PIEZA: this.pieza,
       "CODE MASTER": this.codeMaster,
       PAIS: this.pais,
@@ -58,32 +53,26 @@ class CatalogItem {
   }
 
   /**
-   * Convierte el ítem a un objeto plano preservando el orden original de columnas
-   * y reemplazando VEHICULO MASTER por MARCA, VEHICULO, DESDE, HASTA en su posición
-   * @param {Map} originalHeaders - Mapa de índice a nombre original de header
-   * @param {number} vehicleColumnIndex - Índice de la columna VEHICULO MASTER original
+   * Convierte el registro a un objeto plano preservando el orden original.
+   * @param {Map} originalHeaders
+   * @param {number} vehicleColumnIndex
    */
   toPlainObjectWithOrder(originalHeaders, vehicleColumnIndex) {
     const result = {};
 
-    // Recorrer los headers originales en orden
     originalHeaders.forEach((originalHeader, colIndex) => {
       if (colIndex === vehicleColumnIndex) {
-        // Reemplazar la columna VEHICULO MASTER por las nuevas columnas
-        result['MARCA'] = this.marca;
-        result['VEHICULO'] = this.vehiculo;
-        result['DESDE'] = this.desde;
-        result['HASTA'] = this.hasta;
+        result["GRUPO"] = this.marca;
+        result["REGISTRO"] = this.vehiculo;
+        result["VIGENCIA_DESDE"] = this.desde;
+        result["VIGENCIA_HASTA"] = this.hasta;
       } else {
-        // Usar el nombre original del header (preservando mayúsculas/minúsculas)
-        // Buscar el valor en additionalData o en las propiedades estándar
         const normalizedHeader = originalHeader.toLowerCase()
           .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "")
           .replace(/\s+/g, " ")
           .trim();
 
-        // Mapear headers originales a propiedades
         if (normalizedHeader === "linea fabricante") {
           result[originalHeader] = this.lineaFabricante;
         } else if (normalizedHeader === "pieza") {
@@ -93,7 +82,6 @@ class CatalogItem {
         } else if (normalizedHeader === "pais") {
           result[originalHeader] = this.pais;
         } else if (this.additionalData.hasOwnProperty(originalHeader)) {
-          // Columnas adicionales (preservando el header original)
           result[originalHeader] = this.additionalData[originalHeader];
         }
       }
@@ -103,7 +91,7 @@ class CatalogItem {
   }
 
   /**
-   * Crea un CatalogItem desde una fila de Excel procesada
+   * Crea un CatalogItem desde una fila procesada.
    */
   static fromExcelRow(rowData, metadata = {}) {
     return new CatalogItem({

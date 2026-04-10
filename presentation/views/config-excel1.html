@@ -7,7 +7,7 @@
       content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:;"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Configuración Excel 1 - Osiris</title>
+    <title>ReconGrid - Configuracion de archivo base</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -16,8 +16,8 @@
     />
     <style>
       :root {
-        --bs-primary: #6c757d;
-        --bs-primary-rgb: 108, 117, 125;
+        --bs-primary: #0f766e;
+        --bs-primary-rgb: 15, 118, 110;
       }
       .preview-table {
         font-size: 0.85rem;
@@ -63,43 +63,48 @@
         background: #28a745;
         color: white;
       }
+      .brand-label {
+        display: inline-block;
+        margin-bottom: 0.75rem;
+        padding: 0.35rem 0.8rem;
+        border-radius: 999px;
+        background: #ccfbf1;
+        color: #115e59;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
     </style>
   </head>
   <body class="bg-light">
     <div class="container my-5">
-      <!-- Encabezado -->
       <div class="text-center mb-4">
-        <h2 class="text-dark">Configuración del Primer Excel</h2>
+        <div class="brand-label">ReconGrid</div>
+        <h2 class="text-dark">Configuracion del archivo base</h2>
         <p class="text-muted">Archivo: <strong id="fileName"></strong></p>
       </div>
 
-      <!-- Indicador de pasos -->
       <div class="step-indicator">
         <div class="step active" id="step1">1</div>
         <div class="step" id="step2">2</div>
       </div>
 
-      <!-- Card principal -->
       <div class="card shadow-sm">
         <div class="card-body p-4">
-          <!-- Sección: Configuración de hoja y columnas -->
           <div class="mb-4">
-            <h5 class="mb-3">📊 Configuración de Hoja y Columnas</h5>
+            <h5 class="mb-3">Configuracion de hoja y columnas</h5>
 
-            <!-- Selección de hoja -->
             <div class="mb-4">
-              <label for="sheetSelect" class="form-label"
-                >Seleccionar Hoja:</label
-              >
+              <label for="sheetSelect" class="form-label">Seleccionar hoja:</label>
               <select class="form-select" id="sheetSelect">
                 <option value="">Seleccione una hoja...</option>
               </select>
             </div>
 
-            <!-- Selección de fila de encabezados -->
             <div class="mb-4">
               <label for="headerRowSelect" class="form-label">
-                Fila de Encabezados:
+                Fila de encabezados:
               </label>
               <select class="form-select" id="headerRowSelect">
                 <option value="1">Fila 1</option>
@@ -110,9 +115,8 @@
               </select>
             </div>
 
-            <!-- Vista previa -->
             <div class="mb-4">
-              <h6>Vista Previa</h6>
+              <h6>Vista previa</h6>
               <div class="table-responsive preview-table">
                 <table class="table table-sm table-bordered" id="previewTable">
                   <thead>
@@ -123,51 +127,42 @@
               </div>
             </div>
 
-            <!-- Selección de columnas de búsqueda -->
             <div class="mb-4">
-              <h6>Columnas de Búsqueda</h6>
+              <h6>Columnas de busqueda</h6>
               <p class="text-muted small">
-                Seleccione las columnas donde se encuentran los códigos a buscar
+                Selecciona las columnas donde se encuentran los identificadores
+                a buscar.
               </p>
-              <div class="column-selector" id="searchColumnsContainer">
-                <!-- Se llenará dinámicamente -->
-              </div>
+              <div class="column-selector" id="searchColumnsContainer"></div>
             </div>
 
-            <!-- Selección de columnas de datos -->
             <div class="mb-4">
-              <div
-                class="d-flex justify-content-between align-items-center mb-2"
-              >
-                <h6 class="mb-0">Columnas de Datos a Incluir</h6>
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="mb-0">Columnas de datos a incluir</h6>
                 <button
                   class="btn btn-sm btn-outline-primary"
                   id="selectAllDataBtn"
                 >
-                  Seleccionar Todas
+                  Seleccionar todas
                 </button>
               </div>
               <p class="text-muted small">
-                Seleccione las columnas que desea incluir en el resultado final
+                Selecciona las columnas que deseas incluir en el resultado final.
               </p>
-              <div class="column-selector" id="dataColumnsContainer">
-                <!-- Se llenará dinámicamente -->
-              </div>
+              <div class="column-selector" id="dataColumnsContainer"></div>
             </div>
 
-            <!-- Botones de navegación -->
             <div class="d-flex justify-content-between mt-4">
-              <button class="btn btn-secondary" id="backBtn">← Volver</button>
-              <button class="btn btn-success" id="nextBtn">Siguiente →</button>
+              <button class="btn btn-secondary" id="backBtn">Volver</button>
+              <button class="btn btn-success" id="nextBtn">Siguiente</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Botón volver al inicio -->
       <div class="text-center mt-4">
         <button class="btn btn-outline-secondary" id="backToMenuBtn">
-          ← Volver al Menú Principal
+          Volver al menu principal
         </button>
       </div>
     </div>

@@ -2,22 +2,20 @@ const CatalogParser = require("../../infrastructure/parsers/CatalogParser");
 
 /**
  * ProcessCatalogUseCase
- * Caso de uso para procesar archivos de catálogos
+ * Caso de uso para procesar archivos de normalizacion.
  */
 class ProcessCatalogUseCase {
   /**
-   * Ejecuta el procesamiento de catálogos
-   * @param {Array<Object>} fileConfigs - Array de configuraciones: [{ filePath, sheetName, columnIndex }, ...]
-   * @param {Function} onProgress - Callback para reportar progreso (opcional)
-   * @returns {Promise<Object>} - Resultado con array de CatalogFile procesados y estadísticas
+   * Ejecuta el procesamiento.
+   * @param {Array<Object>} fileConfigs
+   * @param {Function} onProgress
+   * @returns {Promise<Object>}
    */
   async execute(fileConfigs, onProgress = null) {
-    console.log(
-      `\n📋 Iniciando procesamiento de ${fileConfigs.length} archivo(s)`
-    );
+    console.log(`\nIniciando procesamiento de ${fileConfigs.length} archivo(s)`);
 
     const results = [];
-    let totalFiles = fileConfigs.length;
+    const totalFiles = fileConfigs.length;
     let processedFiles = 0;
 
     for (const config of fileConfigs) {
@@ -26,7 +24,7 @@ class ProcessCatalogUseCase {
 
         if (!filePath || !sheetName || !columnIndex) {
           throw new Error(
-            "Configuración incompleta: se requiere filePath, sheetName y columnIndex"
+            "Configuracion incompleta: se requiere filePath, sheetName y columnIndex"
           );
         }
 
@@ -50,15 +48,13 @@ class ProcessCatalogUseCase {
         processedFiles++;
 
         console.log(
-          `✅ Archivo procesado: ${catalogFile.fileName} (Hoja: ${sheetName})`
+          `Archivo procesado: ${catalogFile.fileName} (Hoja: ${sheetName})`
         );
-        console.log(`   - Total ítems: ${catalogFile.stats.totalItems}`);
-        console.log(
-          `   - Filas procesadas: ${catalogFile.stats.processedRows}`
-        );
-        console.log(`   - Errores: ${catalogFile.stats.errorRows}`);
+        console.log(`   - Total registros: ${catalogFile.stats.totalItems}`);
+        console.log(`   - Filas procesadas: ${catalogFile.stats.processedRows}`);
+        console.log(`   - Observaciones: ${catalogFile.stats.errorRows}`);
       } catch (error) {
-        console.error(`❌ Error procesando ${config.filePath}:`, error);
+        console.error(`Error procesando ${config.filePath}:`, error);
         results.push({
           fileName: config.filePath.split(/[\\/]/).pop(),
           filePath: config.filePath,
@@ -75,15 +71,14 @@ class ProcessCatalogUseCase {
       }
     }
 
-    // Estadísticas finales
     const totalStats = this.calculateTotalStats(results);
-    console.log(`\n📊 RESUMEN FINAL:`);
+    console.log("\nResumen final:");
     console.log(`   - Archivos procesados: ${totalStats.filesProcessed}`);
-    console.log(`   - Total ítems generados: ${totalStats.totalItems}`);
+    console.log(`   - Total registros generados: ${totalStats.totalItems}`);
     console.log(
       `   - Total filas procesadas: ${totalStats.totalProcessedRows}`
     );
-    console.log(`   - Total errores: ${totalStats.totalErrorRows}`);
+    console.log(`   - Total observaciones: ${totalStats.totalErrorRows}`);
 
     return {
       success: true,
@@ -93,7 +88,7 @@ class ProcessCatalogUseCase {
   }
 
   /**
-   * Calcula estadísticas totales de todos los archivos procesados
+   * Calcula estadisticas totales.
    */
   calculateTotalStats(results) {
     let totalItems = 0;

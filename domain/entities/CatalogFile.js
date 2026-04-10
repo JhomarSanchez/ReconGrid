@@ -1,6 +1,6 @@
 /**
  * CatalogFile Entity
- * Representa un archivo de catálogo con sus ítems procesados
+ * Representa un archivo procesado con sus registros generados.
  */
 class CatalogFile {
   constructor(fileName, filePath) {
@@ -14,15 +14,13 @@ class CatalogFile {
       errorRows: 0,
       totalItems: 0,
     };
-    // Headers originales y su orden (se llenarán durante el parsing)
     this.originalHeaders = null;
     this.vehicleColumnIndex = null;
-    // Detalles de errores (filas que no se pudieron procesar)
     this.errorDetails = [];
   }
 
   /**
-   * Agrega un ítem al catálogo
+   * Agrega un registro.
    */
   addItem(item) {
     this.items.push(item);
@@ -30,7 +28,7 @@ class CatalogFile {
   }
 
   /**
-   * Agrega múltiples ítems al catálogo
+   * Agrega varios registros.
    */
   addItems(items) {
     this.items.push(...items);
@@ -38,7 +36,7 @@ class CatalogFile {
   }
 
   /**
-   * Actualiza las estadísticas del archivo
+   * Actualiza las estadisticas del archivo.
    */
   updateStats(stats) {
     this.stats = {
@@ -48,14 +46,14 @@ class CatalogFile {
   }
 
   /**
-   * Obtiene todos los ítems válidos
+   * Obtiene todos los registros validos.
    */
   getValidItems() {
     return this.items.filter((item) => item.isValid());
   }
 
   /**
-   * Obtiene las estadísticas del archivo
+   * Obtiene las estadisticas del archivo.
    */
   getStats() {
     return {
@@ -66,19 +64,17 @@ class CatalogFile {
   }
 
   /**
-   * Convierte todos los ítems a objetos planos para exportación
-   * OBSOLETO: Usar toPlainObjectsWithOrder() para preservar orden
+   * Convierte todos los registros a objetos planos para exportacion.
    */
   toPlainObjects() {
     return this.items.map((item) => item.toPlainObject());
   }
 
   /**
-   * Convierte todos los ítems a objetos planos preservando el orden original
+   * Convierte todos los registros a objetos planos preservando el orden original.
    */
   toPlainObjectsWithOrder() {
     if (!this.originalHeaders || !this.vehicleColumnIndex) {
-      // Fallback al método antiguo si no hay información de orden
       return this.toPlainObjects();
     }
 

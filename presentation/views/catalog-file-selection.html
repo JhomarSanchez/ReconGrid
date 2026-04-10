@@ -7,7 +7,7 @@
       content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:;"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Osiris - Catalogar Datos</title>
+    <title>ReconGrid - Normalizacion de registros</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -16,8 +16,8 @@
     />
     <style>
       :root {
-        --bs-primary: #6c757d;
-        --bs-primary-rgb: 108, 117, 125;
+        --bs-primary: #0f766e;
+        --bs-primary-rgb: 15, 118, 110;
       }
       .file-valid {
         border-left: 4px solid #28a745;
@@ -25,18 +25,14 @@
       .file-invalid {
         border-left: 4px solid #dc3545;
       }
-      .sheet-checkbox:checked {
-        background-color: #28a745;
-        border-color: #28a745;
-      }
       .help-section {
-        background-color: #e7f3ff;
-        border-left: 4px solid #0d6efd;
+        background-color: #ecfeff;
+        border-left: 4px solid #0891b2;
       }
       .example-data {
         font-family: "Courier New", monospace;
         font-size: 0.9em;
-        background-color: #f8f9fa;
+        background-color: #f8fafc;
         padding: 8px;
         border-radius: 4px;
         white-space: pre-wrap;
@@ -66,29 +62,37 @@
         background: #28a745;
         color: white;
       }
+      .brand-label {
+        display: inline-block;
+        margin-bottom: 0.75rem;
+        padding: 0.35rem 0.8rem;
+        border-radius: 999px;
+        background: #ccfbf1;
+        color: #115e59;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
     </style>
   </head>
   <body class="bg-light">
     <div class="container my-5">
-      <!-- Encabezado -->
       <div class="text-center mb-4">
-        <h2 class="text-dark">📋 Catalogar Datos</h2>
+        <div class="brand-label">ReconGrid</div>
+        <h2 class="text-dark">Normalizacion de registros</h2>
         <p class="text-muted">
-          Selecciona archivos Excel con catálogos de vehículos para procesar
+          Selecciona archivos Excel con columnas de texto semiestructurado para estructurar.
         </p>
       </div>
 
-      <!-- Indicador de pasos -->
       <div class="step-indicator">
         <div class="step active" id="step1">1</div>
         <div class="step" id="step2">2</div>
       </div>
 
-      <!-- Card principal -->
       <div class="card shadow-sm">
         <div class="card-body p-4">
-
-          <!-- Sección de Ayuda (colapsable) -->
           <div class="accordion mb-4" id="helpAccordion">
             <div class="accordion-item">
               <h2 class="accordion-header">
@@ -98,7 +102,7 @@
                   data-bs-toggle="collapse"
                   data-bs-target="#helpContent"
                 >
-                  ℹ️ Ayuda - Formato de Datos Esperado
+                  Ayuda - Formato de datos esperado
                 </button>
               </h2>
               <div
@@ -107,126 +111,109 @@
                 data-bs-parent="#helpAccordion"
               >
                 <div class="accordion-body help-section">
-                      <h6>📋 Formato de Datos de Vehículos:</h6>
-                      <p class="mb-2">
-                        Para que un archivo sea considerado válido para
-                        catalogación, debe contener una columna con datos de
-                        vehículos en el siguiente formato:
-                      </p>
-                      <p class="mb-2">
-                        <code
-                          >MARCA MODELO (AÑO_INICIAL-AÑO_FINAL)
-                          [ESPECIFICACIONES]</code
-                        >
-                      </p>
-                      <p class="text-muted small">
-                        Las especificaciones adicionales (cilindrada, tracción,
-                        etc.) son opcionales y se agregarán automáticamente al
-                        nombre del vehículo.
-                      </p>
+                  <h6>Formato de columna objetivo:</h6>
+                  <p class="mb-2">
+                    Para que un archivo sea considerado valido para
+                    normalizacion, debe contener una columna con registros
+                    semiestructurados similares a este patron:
+                  </p>
+                  <p class="mb-2">
+                    <code>GRUPO DETALLE (INICIO-FIN) [ATRIBUTOS OPCIONALES]</code>
+                  </p>
+                  <p class="text-muted small">
+                    Los atributos adicionales despues del rango son opcionales y
+                    se conservaran como parte del valor normalizado.
+                  </p>
 
-                      <h6 class="mt-3">✅ Ejemplos de Formatos Válidos:</h6>
-                      <div class="example-data">
-                        MAZDA 121 (1996-2001); FORD FIESTA (1996-2001) NISSAN
-                        FRONTIER D22 3.0 (1998-2004) FORD-ECOSPORT (2003,2012)
-                        4X2 ← Con tracción después TOYOTA HILUX (2016-)
-                        CHEVROLET-N300 (2012,2017) 1.2 ← Con cilindrada después
-                        RENAULT-9(1981,1986 ← Sin cierre de paréntesis
-                        CHEVROLET-AVEO NG(23) ← Con años de 2 dígitos
-                        HYUNDAI-ACCENT (2010,2015) 1.4 SEDAN ← Con múltiples
-                        especificaciones
-                      </div>
+                  <h6 class="mt-3">Ejemplos de formatos validos:</h6>
+                  <div class="example-data">
+                    LINEA ALFA (2019-2021); LINEA BETA (2022-)<br />
+                    SERIE-UNO (2018,2020) DETALLE EXTRA<br />
+                    FAMILIA DOS(23) NOTA OPERATIVA
+                  </div>
 
-                      <h6 class="mt-3">❌ Ejemplos de Formatos NO Válidos:</h6>
-                      <div class="example-data text-danger">
-                        0 ← Valor numérico sin formato CHEVROLET-LUV 1600 4X2
-                        (-1990) ← Falta año inicial Sin formato definido ← Texto
-                        sin estructura MODELO SIN MARCA (2010-2020) ← Debe tener
-                        marca
-                      </div>
+                  <h6 class="mt-3">Ejemplos de formatos no validos:</h6>
+                  <div class="example-data text-danger">
+                    0<br />
+                    TEXTO SIN ESTRUCTURA DEFINIDA<br />
+                    DETALLE SUELTO (-2020)
+                  </div>
 
-                      <h6 class="mt-3">📝 Notas Importantes:</h6>
-                      <ul>
-                        <li>
-                          El programa busca automáticamente columnas llamadas
-                          <strong>"VEHICULO MASTER"</strong> o
-                          <strong>"CAR CATALOGUE"</strong>
-                        </li>
-                        <li>
-                          Si no se encuentra ninguna de estas columnas, puedes
-                          seleccionar manualmente la columna correcta
-                        </li>
-                        <li>
-                          La columna seleccionada será validada analizando si
-                          sus datos siguen el formato esperado (mínimo 50%
-                          válidos)
-                        </li>
-                        <li>
-                          Múltiples vehículos en una misma celda se separan con
-                          punto y coma (;)
-                        </li>
-                        <li>
-                          Soporta años de 2 dígitos (95 = 1995, 23 = 2023)
-                        </li>
-                        <li>
-                          Si no hay año final, se usa el año actual por defecto
-                          (ej: 2016-)
-                        </li>
-                        <li>
-                          Información adicional después del paréntesis
-                          (cilindrada, tracción, etc.) se incluye
-                          automáticamente en el nombre del vehículo
-                        </li>
-                      </ul>
+                  <h6 class="mt-3">Notas importantes:</h6>
+                  <ul>
+                    <li>
+                      El sistema intenta detectar automaticamente columnas
+                      compatibles cuando encuentra encabezados conocidos.
+                    </li>
+                    <li>
+                      Si no detecta una columna util, puedes seleccionar
+                      manualmente la columna correcta.
+                    </li>
+                    <li>
+                      La columna seleccionada se valida con una muestra y
+                      requiere al menos 50% de filas interpretables.
+                    </li>
+                    <li>
+                      Multiples registros dentro de una misma celda se separan
+                      con punto y coma (;).
+                    </li>
+                    <li>
+                      Soporta anos de 2 digitos (95 = 1995, 23 = 2023).
+                    </li>
+                    <li>
+                      Si no hay ano final, se usa el ano actual por defecto.
+                    </li>
+                    <li>
+                      La informacion adicional despues del parentesis se
+                      conserva en el valor normalizado.
+                    </li>
+                  </ul>
 
-                      <h6 class="mt-3">🔍 Proceso de Validación:</h6>
-                      <ol>
-                        <li>
-                          El programa detecta automáticamente la columna de
-                          vehículos (si existe)
-                        </li>
-                        <li>
-                          Analiza una muestra de filas para verificar que los
-                          datos sean parseables
-                        </li>
-                        <li>
-                          Si los datos siguen el formato correcto, el archivo es
-                          válido
-                        </li>
-                        <li>
-                          Si no se detecta la columna automáticamente, podrás
-                          seleccionarla manualmente
-                        </li>
+                  <h6 class="mt-3">Proceso de validacion:</h6>
+                  <ol>
+                    <li>
+                      El sistema detecta una columna compatible cuando es
+                      posible.
+                    </li>
+                    <li>
+                      Analiza una muestra de filas para verificar que los datos
+                      sean interpretables.
+                    </li>
+                    <li>
+                      Si el patron es consistente, el archivo queda listo para
+                      procesar.
+                    </li>
+                    <li>
+                      Si no se detecta automaticamente, puedes elegir la
+                      columna manualmente.
+                    </li>
                   </ol>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Selección de archivos -->
           <div class="mb-4">
-            <h5 class="mb-3">📁 Paso 1: Seleccionar Archivos Excel</h5>
+            <h5 class="mb-3">Paso 1: Seleccionar archivos Excel</h5>
             <div class="d-flex gap-2">
               <button
                 type="button"
                 class="btn btn-primary flex-grow-1"
                 id="selectFilesBtn"
               >
-                Seleccionar Archivos
+                Seleccionar archivos
               </button>
             </div>
           </div>
 
-          <!-- Lista de archivos validados -->
           <div id="filesSection" style="display: none">
-            <h5 class="mb-3">🔧 Paso 2: Configurar Archivos para Procesar</h5>
+            <h5 class="mb-3">Paso 2: Configurar archivos para procesar</h5>
             <p class="text-muted small">
-              Para cada archivo, selecciona una hoja y la columna que
-              contiene los datos de vehículos (VEHICULO MASTER)
+              Para cada archivo, selecciona una hoja y la columna que contiene
+              el texto que deseas normalizar.
             </p>
             <div id="filesList" class="mb-3"></div>
 
-            <!-- Botón para procesar -->
             <div class="d-flex justify-content-end">
               <button
                 type="button"
@@ -234,20 +221,18 @@
                 id="processBtn"
                 disabled
               >
-                ✅ Procesar Catálogos Configurados
+                Procesar normalizacion
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Botón volver al inicio -->
       <div class="text-center mt-4">
         <button class="btn btn-outline-secondary" id="backBtn">
-          ← Volver al Menú Principal
+          Volver al menu principal
         </button>
       </div>
-    </div>
     </div>
 
     <script
@@ -260,7 +245,6 @@
       const { ipcRenderer } = require("electron");
 
       let fileValidations = [];
-      // Map<filePath, { sheetName, columnIndex, isValid }>
       let fileConfigs = new Map();
 
       document.addEventListener("DOMContentLoaded", () => {
@@ -296,20 +280,17 @@
               fileValidations = validationResult.validations;
               fileConfigs.clear();
 
-              // Pre-configurar archivos con hoja detectada y columna detectada
               fileValidations.forEach((file) => {
                 if (file.success && file.sheets && file.sheets.length > 0) {
                   const firstSheet = file.sheets[0];
                   if (firstSheet.hasData && firstSheet.detectedVehicleColumn) {
-                    // Si detectó columna automáticamente, pre-configurar
                     fileConfigs.set(file.filePath, {
                       sheetName: firstSheet.name,
                       columnIndex: firstSheet.detectedVehicleColumn,
-                      isValid: null, // null = pendiente de validación
+                      isValid: null,
                       isValidating: false,
                     });
                   } else {
-                    // Si no detectó, dejar sin configurar
                     fileConfigs.set(file.filePath, {
                       sheetName: firstSheet.name,
                       columnIndex: null,
@@ -323,7 +304,6 @@
               displayFiles();
               filesSection.style.display = "block";
 
-              // Validar columnas pre-configuradas automáticamente
               await validateAllDetectedColumns();
               updateProcessButton();
             } else {
@@ -334,7 +314,7 @@
           }
 
           selectFilesBtn.disabled = false;
-          selectFilesBtn.innerHTML = "📁 Seleccionar Archivos";
+          selectFilesBtn.innerHTML = "Seleccionar archivos";
         }
 
         async function validateAllDetectedColumns() {
@@ -356,7 +336,6 @@
             const config = fileConfigs.get(file.filePath);
             const fileCard = document.createElement("div");
 
-            // Color del borde según validación
             let borderClass = "border-secondary";
             if (config && config.isValid === true) {
               borderClass = "file-valid";
@@ -376,11 +355,10 @@
 
               contentHTML = `
                 <div class="card-body">
-                  <h6 class="card-title mb-3">📄 ${file.fileName}</h6>
+                  <h6 class="card-title mb-3">${file.fileName}</h6>
                   
-                  <!-- Selección de Hoja -->
                   <div class="mb-3">
-                    <label class="form-label fw-bold">Seleccionar Hoja:</label>
+                    <label class="form-label fw-bold">Seleccionar hoja:</label>
                     <select class="form-select sheet-select" data-file-path="${
                       file.filePath
                     }">
@@ -400,9 +378,8 @@
                     </select>
                   </div>
 
-                  <!-- Selección de Columna -->
                   <div class="mb-3">
-                    <label class="form-label fw-bold">Columna VEHICULO MASTER:</label>
+                    <label class="form-label fw-bold">Columna objetivo:</label>
                     <select class="form-select column-select" data-file-path="${
                       file.filePath
                     }" id="column-${fileId}">
@@ -423,7 +400,6 @@
                     </select>
                   </div>
 
-                  <!-- Estado de Validación -->
                   <div class="alert mb-0" id="validation-status-${fileId}" role="alert">
                     ${getValidationStatusHTML(config)}
                   </div>
@@ -432,7 +408,7 @@
             } else {
               contentHTML = `
                 <div class="card-body">
-                  <h6 class="card-title text-danger">❌ ${file.fileName}</h6>
+                  <h6 class="card-title text-danger">${file.fileName}</h6>
                   <p class="text-danger mb-0">Error: ${
                     file.error || "No se pudo cargar el archivo"
                   }</p>
@@ -444,7 +420,6 @@
             filesList.appendChild(fileCard);
           });
 
-          // Añadir event listeners
           document.querySelectorAll(".sheet-select").forEach((select) => {
             select.addEventListener("change", onSheetChange);
           });
@@ -464,7 +439,7 @@
 
         function getValidationStatusHTML(config) {
           if (!config) {
-            return '<span class="text-muted">⚠️ Esperando configuración...</span>';
+            return '<span class="text-muted">Esperando configuracion...</span>';
           }
 
           if (config.isValidating) {
@@ -472,18 +447,18 @@
           }
 
           if (config.isValid === null) {
-            return '<span class="text-muted">⏳ Pendiente de validación...</span>';
+            return '<span class="text-muted">Pendiente de validacion...</span>';
           }
 
           if (config.isValid === true) {
-            return '<span class="text-success">✓ Columna válida - Lista para procesar</span>';
+            return '<span class="text-success">Columna valida - Lista para procesar</span>';
           }
 
           if (config.isValid === false && !config.columnIndex) {
-            return '<span class="text-warning">⚠️ Por favor selecciona una columna</span>';
+            return '<span class="text-warning">Por favor selecciona una columna</span>';
           }
 
-          return '<span class="text-danger">✗ Columna inválida - Los datos no tienen el formato esperado</span>';
+          return '<span class="text-danger">Columna invalida - Los datos no siguen el formato esperado</span>';
         }
 
         async function onSheetChange(e) {
@@ -497,7 +472,6 @@
             config.isValid = false;
           }
 
-          // Actualizar opciones de columnas
           displayFiles();
           updateProcessButton();
         }
@@ -523,7 +497,6 @@
 
           updateValidationStatus(filePath);
 
-          // Validar la columna seleccionada
           await validateColumn(filePath, config.sheetName, columnIndex);
           updateProcessButton();
         }
@@ -570,7 +543,6 @@
           if (statusDiv) {
             statusDiv.innerHTML = getValidationStatusHTML(config);
 
-            // Actualizar clase de alerta
             statusDiv.className = "alert mb-0";
             if (config && config.isValid === true) {
               statusDiv.classList.add("alert-success");
@@ -585,7 +557,6 @@
             }
           }
 
-          // Actualizar borde de la card
           if (fileCard) {
             fileCard.className = "card mb-3";
             if (config && config.isValid === true) {
@@ -613,16 +584,14 @@
 
           if (validConfigs > 0 && validConfigs === fileConfigs.size) {
             processBtn.disabled = false;
-            processBtn.textContent = `✅ Procesar ${validConfigs} archivo(s) configurado(s)`;
+            processBtn.textContent = `Procesar ${validConfigs} archivo(s) configurado(s)`;
           } else {
             processBtn.disabled = true;
-            processBtn.textContent = "✅ Procesar Catálogos Configurados";
+            processBtn.textContent = "Procesar normalizacion";
           }
         }
 
-        // Función para procesar catálogos
         async function processCatalogs() {
-          // Validar que todos los archivos tengan configuración válida
           let allValid = true;
           fileConfigs.forEach((config) => {
             if (config.isValid !== true) {
@@ -640,9 +609,8 @@
           try {
             processBtn.disabled = true;
             processBtn.innerHTML =
-              '<span class="spinner-border spinner-border-sm me-2"></span>Procesando catálogos...';
+              '<span class="spinner-border spinner-border-sm me-2"></span>Procesando normalizacion...';
 
-            // Preparar configuraciones para el backend
             const configs = [];
             fileConfigs.forEach((config, filePath) => {
               configs.push({
@@ -658,13 +626,11 @@
             );
 
             if (result.success) {
-              // Guardar stats en sessionStorage para que la siguiente página pueda accederlas
               sessionStorage.setItem(
                 "catalogStats",
                 JSON.stringify(result.stats)
               );
 
-              // Navegar a la pantalla de resultados
               ipcRenderer.send("navigate-to", "catalog-results");
             } else {
               alert("Error al procesar archivos:\n\n" + result.error);

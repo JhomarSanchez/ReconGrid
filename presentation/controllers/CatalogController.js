@@ -2,7 +2,7 @@ const ProcessCatalogUseCase = require("../../domain/usecases/ProcessCatalogUseCa
 
 /**
  * CatalogController
- * Controlador para manejar operaciones de catalogación
+ * Controlador para manejar operaciones de normalizacion.
  */
 class CatalogController {
   constructor() {
@@ -12,9 +12,9 @@ class CatalogController {
   }
 
   /**
-   * Procesa archivos de catálogo con configuración específica
-   * @param {Array<Object>} fileConfigs - Array de configuraciones: [{ filePath, sheetName, columnIndex }, ...]
-   * @param {Function} onProgress - Callback para reportar progreso
+   * Procesa archivos con configuracion especifica.
+   * @param {Array<Object>} fileConfigs
+   * @param {Function} onProgress
    */
   async processCatalogs(fileConfigs, onProgress = null) {
     try {
@@ -23,7 +23,6 @@ class CatalogController {
         onProgress
       );
 
-      // Guardar resultados en memoria para posterior exportación
       this.catalogResults = result;
 
       return {
@@ -41,14 +40,14 @@ class CatalogController {
   }
 
   /**
-   * Obtiene los resultados procesados
+   * Obtiene los resultados procesados.
    */
   getCatalogResults() {
     return this.catalogResults;
   }
 
   /**
-   * Obtiene todos los ítems de catálogo de todos los archivos
+   * Obtiene todos los registros generados de todos los archivos.
    */
   getAllItems() {
     if (!this.catalogResults || !this.catalogResults.results) {
@@ -67,7 +66,7 @@ class CatalogController {
   }
 
   /**
-   * Exporta los resultados a objetos planos para Excel
+   * Exporta los resultados a objetos planos para Excel.
    */
   exportToPlainObjects() {
     const allItems = this.getAllItems();
@@ -75,7 +74,7 @@ class CatalogController {
   }
 
   /**
-   * Obtiene todos los detalles de errores de todos los archivos
+   * Obtiene todos los detalles de errores.
    */
   getAllErrorDetails() {
     if (!this.catalogResults || !this.catalogResults.results) {
@@ -86,7 +85,6 @@ class CatalogController {
 
     for (const catalogFile of this.catalogResults.results) {
       if (catalogFile.errorDetails && catalogFile.errorDetails.length > 0) {
-        // Agregar el nombre del archivo a cada error
         const errorsWithFile = catalogFile.errorDetails.map((error) => ({
           ...error,
           fileName: catalogFile.fileName,
@@ -99,7 +97,7 @@ class CatalogController {
   }
 
   /**
-   * Resetea el controlador
+   * Resetea el controlador.
    */
   reset() {
     this.catalogResults = null;
