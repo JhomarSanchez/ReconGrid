@@ -20,7 +20,7 @@ ReconGrid turns that manual workflow into a repeatable desktop process focused o
 
 | Home | File comparison | Internal column comparison |
 |---|---|---|
-| ![ReconGrid home screen](docs/assets/recongrid-home.svg) | ![ReconGrid file comparison](docs/assets/recongrid-file-comparison.svg) | ![ReconGrid internal comparison](docs/assets/recongrid-internal-comparison.svg) |
+| ![ReconGrid home screen](docs/assets/recongrid-home.png) | ![ReconGrid file comparison](docs/assets/recongrid-file-comparison.png) | ![ReconGrid internal comparison](docs/assets/recongrid-internal-comparison.png) |
 
 ## Visible workflows
 
