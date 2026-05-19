@@ -1,0 +1,25 @@
+<svg width="1200" height="675" viewBox="0 0 1200 675" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="675" rx="28" fill="#F8FAFC"/>
+  <rect x="520" y="70" width="160" height="44" rx="22" fill="#CCFBF1"/>
+  <text x="553" y="99" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="800" letter-spacing="2" fill="#0F766E">RECONGRID</text>
+  <text x="310" y="162" font-family="Segoe UI, Arial, sans-serif" font-size="38" font-weight="700" fill="#020617">Comparacion de columnas internas</text>
+  <text x="356" y="200" font-family="Segoe UI, Arial, sans-serif" font-size="19" fill="#475569">Configura la comparacion entre dos columnas de una misma hoja.</text>
+  <circle cx="540" cy="262" r="28" fill="#0F766E"/>
+  <circle cx="600" cy="262" r="28" fill="#E5E7EB"/>
+  <circle cx="660" cy="262" r="28" fill="#E5E7EB"/>
+  <text x="533" y="270" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700" fill="#FFFFFF">1</text>
+  <text x="593" y="270" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700" fill="#64748B">2</text>
+  <text x="653" y="270" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700" fill="#64748B">3</text>
+  <rect x="170" y="340" width="860" height="170" rx="12" fill="#FFFFFF" stroke="#CBD5E1" filter="url(#shadow)"/>
+  <text x="210" y="392" font-family="Segoe UI, Arial, sans-serif" font-size="25" font-weight="700" fill="#020617">Paso 1: Seleccionar archivo</text>
+  <rect x="210" y="420" width="210" height="44" rx="8" fill="#2563EB"/>
+  <text x="230" y="448" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="600" fill="#FFFFFF">Seleccionar archivo Excel</text>
+  <text x="450" y="449" font-family="Segoe UI, Arial, sans-serif" font-size="20" fill="#475569">Ningun archivo seleccionado</text>
+  <rect x="472" y="548" width="256" height="44" rx="8" fill="#FFFFFF" stroke="#64748B"/>
+  <text x="505" y="576" font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#64748B">Volver al menu principal</text>
+  <defs>
+    <filter id="shadow" x="150" y="318" width="900" height="216" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#0F172A" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+</svg>
