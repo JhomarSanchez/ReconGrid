@@ -4,6 +4,7 @@
   "description": "Desktop app for Excel reconciliation and auditable exports.",
   "main": "index.js",
   "scripts": {
+    "dev": "npm run start",
     "start": "electron . --max-old-space-size=4096",
     "start:large": "electron . --max-old-space-size=8192 --expose-gc",
     "dist": "electron-builder",
