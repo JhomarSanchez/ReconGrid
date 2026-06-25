@@ -8,7 +8,7 @@ ReconGrid is an Electron desktop application for spreadsheet reconciliation, wor
 
 This repository is publicly visible for portfolio, technical evaluation, and recruitment review.
 
-The source code is proprietary and **not open source**. No permission is granted to use, copy, modify, redistribute, sublicense, train on, republish, commercialize, or create derivative works from this software, in whole or in part, without prior explicit written permission from the author.
+The source code is proprietary and **not open source**. No permission is granted to use, copy, modify, redistribute, sublicense, train on, republish, commercialize, or create derivative works from this software, in whole or in part, without prior explicit written permission from the author. See [LICENSE](LICENSE).
 
 ## What ReconGrid solves
 
@@ -71,6 +71,14 @@ npm run dist:linux
 npm run dist:mac
 ```
 
+## Benchmarks and operational metrics
+
+`npm run bench:matching` executes a reproducible synthetic benchmark with 20,000 source rows and 20,000 target rows. It is intended to compare matching strategies and detect performance regressions in the public codebase.
+
+During professional use with confidential business data, the broader automation workflow centralized approximately 400,000 historical records and processed more than 50,000 records in 22.87 seconds, with an observed matching rate of 90–95%. The source workbooks cannot be published because they contain third-party operational information.
+
+These operational figures describe the private production workload; they are not presented as the output of the repository's synthetic benchmark.
+
 ## Local development
 
 ```bash
@@ -111,4 +119,4 @@ electron, javascript, excel, spreadsheet, data-reconciliation, desktop-app, auto
 
 ## Portfolio note
 
-ReconGrid demonstrates desktop automation, spreadsheet processing, layered architecture, benchmarking, and operational tooling. It is not intended to represent a full-stack web application; it complements my backend and full-stack work by showing how I approach business workflow automation.
+ReconGrid demonstrates desktop automation, spreadsheet processing, layered architecture, benchmarking, and operational tooling. It complements backend and full-stack work by showing an approach to data-heavy business workflow automation.
