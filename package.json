@@ -21,8 +21,8 @@
     "matching",
     "audit"
   ],
-  "author": "ReconGrid",
-  "license": "ISC",
+  "author": "Jhomar Sebastián Sánchez Durán",
+  "license": "UNLICENSED",
   "type": "commonjs",
   "devDependencies": {
     "electron": "^41.2.0",
@@ -62,15 +62,11 @@
       "target": [
         {
           "target": "nsis",
-          "arch": [
-            "x64"
-          ]
+          "arch": ["x64"]
         },
         {
           "target": "portable",
-          "arch": [
-            "x64"
-          ]
+          "arch": ["x64"]
         }
       ],
       "publish": null,
@@ -94,9 +90,7 @@
       "target": [
         {
           "target": "pkg",
-          "arch": [
-            "arm64"
-          ]
+          "arch": ["arm64"]
         }
       ],
       "hardenedRuntime": true,
@@ -109,9 +103,7 @@
       "target": [
         {
           "target": "AppImage",
-          "arch": [
-            "x64"
-          ]
+          "arch": ["x64"]
         }
       ]
     },
